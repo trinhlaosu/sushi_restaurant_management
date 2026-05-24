@@ -1,5 +1,7 @@
 from app.extensions import db
 
+MENU_ITEM_STATUSES = ('con_mon', 'het_mon', 'ngung_ban')
+
 class MenuItem(db.Model):
     __tablename__ = 'menu_items'
 
@@ -9,6 +11,7 @@ class MenuItem(db.Model):
     price = db.Column(db.Integer, nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
     is_available = db.Column(db.Boolean, default=True)
+    status = db.Column(db.String(30), nullable=False, default='con_mon')
 
     category = db.relationship('Category', back_populates='menu_items')
     order_details = db.relationship('OrderDetail', back_populates='menu_item')
@@ -21,5 +24,6 @@ class MenuItem(db.Model):
             'price': self.price,
             'category_id': self.category_id,
             'category_name': self.category.name if self.category else None,
-            'is_available': self.is_available
+            'is_available': self.is_available,
+            'status': self.status
         }

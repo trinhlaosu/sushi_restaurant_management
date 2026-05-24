@@ -1,6 +1,8 @@
 from app import create_app
 from app.extensions import db
 from app.models import Role, User, Category, MenuItem, DiningTable, Customer
+from datetime import date, timedelta
+from app.models.dining_table import now_utc
 
 app = create_app()
 
@@ -57,20 +59,50 @@ with app.app_context():
         ('Nước suối', 'Nước suối đóng chai', 12000, 'Đồ uống')
     ]
     for name, description, price, category_name in menu_items:
+        status = 'het_mon' if name == 'Hàu nướng Misoyaki' else 'con_mon'
         db.session.add(MenuItem(
             name=name,
             description=description,
             price=price,
-            category_id=c(category_name)
+            category_id=c(category_name),
+            status=status,
+            is_available=status == 'con_mon'
         ))
 
     for i in range(1, 11):
-        db.session.add(DiningTable(table_number=f'B{i:02d}', seats=4 if i <= 8 else 6))
+        reserved_at = None
+        reserved_until = None
+        status = 'trong'
+        if i == 2:
+            status = 'da_dat'
+            reserved_at = now_utc()
+            reserved_until = reserved_at + timedelta(minutes=15)
+        elif i == 3:
+            status = 'dang_phuc_vu'
+        db.session.add(DiningTable(
+            table_number=f'B{i:02d}',
+            seats=4 if i <= 8 else 6,
+            status=status,
+            reserved_at=reserved_at,
+            reserved_until=reserved_until
+        ))
 
     db.session.add_all([
-        Customer(full_name='Khách lẻ', phone=None, note='Khách không đăng ký thành viên'),
-        Customer(full_name='Nguyễn Minh Anh', phone='0901000001', note='Khách thành viên'),
-        Customer(full_name='Trần Quốc Bảo', phone='0901000002', note='Thường gọi sashimi')
+        Customer(
+            full_name='Khách lẻ',
+            phone=None,
+            note='Khách không đăng ký thành viên',
+            customer_type='khach_le',
+            member_tier='thuong'
+        ),
+        Customer(
+            full_name='Nguyễn Minh Anh',
+            phone='0901000001',
+            note='Khách thành viên hạng vàng',
+            customer_type='thanh_vien',
+            member_tier='vang',
+            birth_date=date(1998, 5, 12)
+        )
     ])
 
     db.session.commit()

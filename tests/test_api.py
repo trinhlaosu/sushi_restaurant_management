@@ -1,11 +1,13 @@
 import os
 import unittest
+from datetime import date, timedelta
 
 os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
 
 from app import create_app
 from app.extensions import db
 from app.models import Category, Customer, DiningTable, MenuItem, Role, User
+from app.models.dining_table import now_utc
 
 
 class SushiApiTestCase(unittest.TestCase):
@@ -48,6 +50,14 @@ class SushiApiTestCase(unittest.TestCase):
             ),
             DiningTable(table_number='B01', seats=4, status='trong'),
             Customer(full_name='Khách lẻ', phone=None, note='Khách không đăng ký'),
+            Customer(
+                full_name='Khách thành viên',
+                phone='0901000001',
+                note='Thành viên sinh nhật tháng 5',
+                customer_type='thanh_vien',
+                member_tier='vip',
+                birth_date=date(1998, 5, 12),
+            ),
         ])
         db.session.commit()
 
@@ -141,6 +151,54 @@ class SushiApiTestCase(unittest.TestCase):
         self.assertEqual(payment_response.status_code, 201)
         self.assertEqual(payment_response.get_json()['payment']['amount'], 90000)
         self.assertEqual(order_detail_response.get_json()['status'], 'da_thanh_toan')
+
+    def test_birthday_member_gets_10_percent_discount_only(self):
+        headers = self._login('staff', 'staff123')
+
+        response = self.client.post('/api/orders', headers=headers, json={
+            'table_id': 1,
+            'customer_id': 2,
+            'items': [
+                {'menu_item_id': 1, 'quantity': 2},
+            ],
+        })
+
+        self.assertEqual(response.status_code, 201)
+        order = response.get_json()['order']
+        self.assertEqual(order['total_amount'], 90000)
+        self.assertEqual(order['discount_percent'], 10)
+        self.assertEqual(order['discount_amount'], 9000)
+        self.assertEqual(order['final_amount'], 81000)
+        self.assertIsNone(order['gift_item'])
+
+    def test_reserve_table_sets_15_minute_hold(self):
+        headers = self._login('staff', 'staff123')
+
+        response = self.client.put('/api/tables/1', headers=headers, json={
+            'status': 'da_dat',
+        })
+
+        self.assertEqual(response.status_code, 200)
+        table = response.get_json()['table']
+        self.assertEqual(table['status'], 'da_dat')
+        self.assertIsNotNone(table['reserved_at'])
+        self.assertIsNotNone(table['reserved_until'])
+
+    def test_expired_reservation_returns_table_to_available(self):
+        headers = self._login('staff', 'staff123')
+        table = DiningTable.query.get(1)
+        table.status = 'da_dat'
+        table.reserved_at = now_utc() - timedelta(minutes=20)
+        table.reserved_until = now_utc() - timedelta(minutes=5)
+        db.session.commit()
+
+        response = self.client.get('/api/tables', headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+        table_data = next(item for item in response.get_json() if item['id'] == 1)
+        self.assertEqual(table_data['status'], 'trong')
+        self.assertIsNone(table_data['reserved_at'])
+        self.assertIsNone(table_data['reserved_until'])
 
 
 if __name__ == '__main__':

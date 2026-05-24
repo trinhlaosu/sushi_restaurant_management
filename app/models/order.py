@@ -10,6 +10,11 @@ class Order(db.Model):
     created_by_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     status = db.Column(db.String(30), nullable=False, default='dang_xu_ly')
     total_amount = db.Column(db.Integer, nullable=False, default=0)
+    discount_percent = db.Column(db.Integer, nullable=False, default=0)
+    discount_amount = db.Column(db.Integer, nullable=False, default=0)
+    final_amount = db.Column(db.Integer, nullable=False, default=0)
+    promotion_note = db.Column(db.String(255))
+    gift_item = db.Column(db.String(120))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     table = db.relationship('DiningTable', back_populates='orders')
@@ -26,6 +31,11 @@ class Order(db.Model):
             'created_by': self.created_by.username if self.created_by else None,
             'status': self.status,
             'total_amount': self.total_amount,
+            'discount_percent': self.discount_percent,
+            'discount_amount': self.discount_amount,
+            'final_amount': self.final_amount,
+            'promotion_note': self.promotion_note,
+            'gift_item': self.gift_item,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'payment': self.payment.to_dict() if self.payment else None
         }

@@ -41,7 +41,7 @@ class StatisticService(ABCBaseService):
             qs = qs.filter(Order.created_at <= den_ngay)
 
         tong_tien = db.session.query(
-            func.coalesce(func.sum(Order.total_amount), 0)
+            func.coalesce(func.sum(Order.final_amount), 0)
         ).filter(
             Order.status == 'da_thanh_toan'
         ).scalar()

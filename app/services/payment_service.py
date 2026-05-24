@@ -24,7 +24,7 @@ class PaymentService(ABCBaseService):
         thanh_toan = Payment(
             order_id=don.id,
             payment_method=phuong_thuc,
-            amount=don.total_amount
+            amount=don.final_amount or don.total_amount
         )
         db.session.add(thanh_toan)
 
