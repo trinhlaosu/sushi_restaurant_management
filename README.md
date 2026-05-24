@@ -13,7 +13,7 @@
 ## 2. Cài đặt
 
 ```bash
-cd Nhom00_Sushi_API_Project
+cd Nhom07_Code\sushi_restaurant_management
 python -m venv venv
 venv\Scripts\activate          # Windows
 # source venv/bin/activate      # macOS/Linux
@@ -45,7 +45,13 @@ http://127.0.0.1:5000
 Authorization: Bearer <token>
 ```
 
-## 5. API quan trọng nhất
+## 5. Chạy unit test
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+## 6. API quan trọng nhất
 
 `POST /api/orders` dùng để tạo đơn gọi món. Hệ thống tự lấy giá món trong CSDL, tính thành tiền từng dòng và tổng tiền hóa đơn.
 
@@ -61,4 +67,29 @@ Ví dụ body:
     {"menu_item_id": 14, "quantity": 2}
   ]
 }
+```
+
+## 7. Cấu trúc thư mục
+
+Project dùng Flask nên cấu trúc khác mẫu Django của giảng viên, nhưng vẫn chia theo MVC và service:
+
+```text
+sushi_restaurant_management/
+├── app/
+│   ├── controllers/      # Tương đương views/urls: định nghĩa REST API endpoints
+│   ├── models/           # Định nghĩa các bảng CSDL bằng SQLAlchemy
+│   ├── services/         # Xử lý nghiệp vụ: gọi món, thanh toán, thống kê
+│   ├── utils/            # Code dùng chung: xác thực, phân quyền
+│   ├── extensions.py     # Khởi tạo SQLAlchemy
+│   └── __init__.py       # Tạo Flask app và đăng ký routes
+├── database/
+│   ├── schema.sql
+│   └── sushi_restaurant.db
+├── docs/                 # Hình ERD, kiến trúc, minh họa Postman
+├── postman/              # Collection kiểm thử API
+├── tests/                # Unit test cho API
+├── config.py             # Cấu hình project
+├── run.py                # Chạy API server
+├── seed.py               # Tạo CSDL mẫu
+└── requirements.txt
 ```
