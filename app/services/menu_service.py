@@ -1,24 +1,10 @@
-"""
-app/services/menu_service.py
-=============================
-Service quản lý menu (danh mục + món ăn).
-
-Áp dụng OOP:
-- Kế thừa ABCWritableService → implement đủ 5 method CRUD
-- Đóng gói: __kiem_tra_ten_trung() là private, dùng lại cho cả Category và MenuItem
-- Đa hình: cùng tên method create() nhưng logic khác nhau cho từng loại
-"""
-
 from app.extensions import db
 from app.models import Category, MenuItem
 from app.services.base_service import ABCWritableService
 
 
 class CategoryService(ABCWritableService):
-    """
-    Quản lý danh mục món ăn.
-    Kế thừa ABCWritableService → có đầy đủ CRUD.
-    """
+    """Xử lý danh mục món ăn."""
 
     def get_all(self):
         return Category.query.order_by(Category.name).all()
@@ -31,7 +17,6 @@ class CategoryService(ABCWritableService):
         if not ten:
             raise ValueError('Tên danh mục không được để trống')
 
-        # Đóng gói kiểm tra trùng tên
         self.__kiem_tra_ten_trung(ten)
 
         danh_muc = Category(
@@ -55,7 +40,6 @@ class CategoryService(ABCWritableService):
         db.session.commit()
 
     def __kiem_tra_ten_trung(self, ten):
-        """(Private) Kiểm tra tên danh mục đã tồn tại chưa."""
         if Category.query.filter_by(name=ten).first():
             raise ValueError(f'Danh mục "{ten}" đã tồn tại')
 
@@ -64,18 +48,9 @@ class CategoryService(ABCWritableService):
 
 
 class MenuItemService(ABCWritableService):
-    """
-    Quản lý món ăn trong menu.
-    Kế thừa ABCWritableService – cùng interface với CategoryService
-    nhưng logic create/update khác (có thêm giá, danh mục).
-
-    Đây là ví dụ đa hình (Polymorphism):
-    Cùng gọi service.create(data) nhưng CategoryService và MenuItemService
-    xử lý khác nhau.
-    """
+    """Xử lý món ăn trong menu."""
 
     def get_all(self):
-        """Lấy danh sách món, kèm tên danh mục."""
         return MenuItem.query.order_by(MenuItem.name).all()
 
     def get_by_id(self, record_id):
@@ -117,7 +92,7 @@ class MenuItemService(ABCWritableService):
         return mon
 
     def delete(self, record_id):
-        """Xóa mềm – tắt is_available thay vì xóa khỏi DB."""
+        # Không xóa hẳn để không ảnh hưởng các đơn hàng cũ
         mon = self.get_by_id(record_id)
         mon.is_available = False
         db.session.commit()
