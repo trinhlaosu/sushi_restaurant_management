@@ -1,0 +1,34 @@
+from datetime import datetime
+from app.extensions import db
+
+class Order(db.Model):
+    __tablename__ = 'orders'
+
+    id = db.Column(db.Integer, primary_key=True)
+    table_id = db.Column(db.Integer, db.ForeignKey('tables.id'), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    created_by_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    status = db.Column(db.String(30), nullable=False, default='dang_xu_ly')
+    total_amount = db.Column(db.Integer, nullable=False, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    table = db.relationship('DiningTable', back_populates='orders')
+    customer = db.relationship('Customer', back_populates='orders')
+    created_by = db.relationship('User', back_populates='orders')
+    details = db.relationship('OrderDetail', back_populates='order', cascade='all, delete-orphan')
+    payment = db.relationship('Payment', back_populates='order', uselist=False, cascade='all, delete-orphan')
+
+    def to_dict(self, include_details=True):
+        data = {
+            'id': self.id,
+            'table': self.table.to_dict() if self.table else None,
+            'customer': self.customer.to_dict() if self.customer else None,
+            'created_by': self.created_by.username if self.created_by else None,
+            'status': self.status,
+            'total_amount': self.total_amount,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'payment': self.payment.to_dict() if self.payment else None
+        }
+        if include_details:
+            data['details'] = [detail.to_dict() for detail in self.details]
+        return data

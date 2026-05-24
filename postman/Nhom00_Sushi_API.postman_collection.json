@@ -1,0 +1,93 @@
+{
+  "info": {
+    "name": "Nhom00 - Sushi Restaurant API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://127.0.0.1:5000"},
+    {"key": "token", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": {"method": "GET", "url": "{{base_url}}/api/health"}
+    },
+    {
+      "name": "Đăng nhập admin",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {"mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"},
+        "url": "{{base_url}}/api/auth/login"
+      }
+    },
+    {
+      "name": "Xem danh sách món",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": "{{base_url}}/api/menu-items"
+      }
+    },
+    {
+      "name": "Thêm món mới",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"},
+          {"key": "Authorization", "value": "Bearer {{token}}"}
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"name\": \"Combo Sushi Sinh Viên\",\n  \"description\": \"Combo sushi giá tốt\",\n  \"price\": 99000,\n  \"category_id\": 4\n}"},
+        "url": "{{base_url}}/api/menu-items"
+      }
+    },
+    {
+      "name": "Tạo đơn gọi món",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"},
+          {"key": "Authorization", "value": "Bearer {{token}}"}
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"table_id\": 1,\n  \"customer_id\": 1,\n  \"items\": [\n    {\"menu_item_id\": 1, \"quantity\": 2},\n    {\"menu_item_id\": 4, \"quantity\": 1},\n    {\"menu_item_id\": 14, \"quantity\": 2}\n  ]\n}"},
+        "url": "{{base_url}}/api/orders"
+      }
+    },
+    {
+      "name": "Xem chi tiết đơn hàng",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": "{{base_url}}/api/orders/1"
+      }
+    },
+    {
+      "name": "Thanh toán đơn hàng",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"},
+          {"key": "Authorization", "value": "Bearer {{token}}"}
+        ],
+        "body": {"mode": "raw", "raw": "{\n  \"order_id\": 1,\n  \"payment_method\": \"tien_mat\"\n}"},
+        "url": "{{base_url}}/api/payments"
+      }
+    },
+    {
+      "name": "Thống kê doanh thu",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": "{{base_url}}/api/statistics/revenue"
+      }
+    },
+    {
+      "name": "Món bán chạy",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+        "url": "{{base_url}}/api/statistics/popular-items"
+      }
+    }
+  ]
+}
