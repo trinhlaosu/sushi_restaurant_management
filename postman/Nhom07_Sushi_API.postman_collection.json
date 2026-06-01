@@ -1,124 +1,858 @@
 {
   "info": {
-    "name": "Nhom07 - Sushi Restaurant API",
+    "name": "Nhóm 07 - API Quản lý nhà hàng Sushi - Kịch bản kiểm thử",
+    "description": "Collection kiểm thử các API quan trọng nhất: đăng nhập, xem dữ liệu nền, tạo khách hàng, thêm món, tạo đơn, cập nhật trạng thái, thanh toán và thống kê.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {"key": "base_url", "value": "http://127.0.0.1:5000"},
-    {"key": "token", "value": ""},
-    {"key": "order_id", "value": ""}
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "created_customer_id",
+      "value": ""
+    },
+    {
+      "key": "created_menu_item_id",
+      "value": ""
+    },
+    {
+      "key": "order_id",
+      "value": ""
+    },
+    {
+      "key": "payment_id",
+      "value": ""
+    }
   ],
   "item": [
     {
-      "name": "Health check",
-      "request": {"method": "GET", "url": "{{base_url}}/api/health"}
+      "name": "00 - Kiểm tra hệ thống",
+      "item": [
+        {
+          "name": "Kiểm tra API đang chạy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('API đang chạy', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
     },
     {
-      "name": "Đăng nhập admin",
-      "request": {
-        "method": "POST",
-        "header": [{"key": "Content-Type", "value": "application/json"}],
-        "body": {"mode": "raw", "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"},
-        "url": "{{base_url}}/api/auth/login"
-      },
-      "event": [
+      "name": "01 - Xác thực",
+      "item": [
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Đăng nhập thành công', function () {",
-              "    pm.response.to.have.status(200);",
-              "});",
-              "const data = pm.response.json();",
-              "pm.collectionVariables.set('token', data.token);"
-            ]
+          "name": "Đăng nhập quản trị và lưu token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Đăng nhập thành công', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.expect(data.token).to.be.a('string').and.not.empty;",
+                  "pm.collectionVariables.set('token', data.token);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Dữ liệu nền",
+      "item": [
+        {
+          "name": "Xem danh sách danh mục",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Xem danh sách món ăn",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/menu-items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "menu-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Xem chi tiết món ăn mã 1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/menu-items/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "menu-items",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Xem danh sách bàn",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/tables",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tables"
+              ]
+            }
           }
         }
       ]
     },
     {
-      "name": "Xem danh sách món",
-      "request": {
-        "method": "GET",
-        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-        "url": "{{base_url}}/api/menu-items"
-      }
-    },
-    {
-      "name": "Thêm món mới",
-      "request": {
-        "method": "POST",
-        "header": [
-          {"key": "Content-Type", "value": "application/json"},
-          {"key": "Authorization", "value": "Bearer {{token}}"}
-        ],
-        "body": {"mode": "raw", "raw": "{\n  \"name\": \"Combo Sushi Sinh Viên\",\n  \"description\": \"Combo sushi giá tốt\",\n  \"price\": 99000,\n  \"category_id\": 4\n}"},
-        "url": "{{base_url}}/api/menu-items"
-      }
-    },
-    {
-      "name": "Tạo đơn gọi món",
-      "request": {
-        "method": "POST",
-        "header": [
-          {"key": "Content-Type", "value": "application/json"},
-          {"key": "Authorization", "value": "Bearer {{token}}"}
-        ],
-        "body": {"mode": "raw", "raw": "{\n  \"table_id\": 1,\n  \"customer_id\": 1,\n  \"items\": [\n    {\"menu_item_id\": 1, \"quantity\": 2},\n    {\"menu_item_id\": 4, \"quantity\": 1},\n    {\"menu_item_id\": 14, \"quantity\": 2}\n  ]\n}"},
-        "url": "{{base_url}}/api/orders"
-      },
-      "event": [
+      "name": "03 - Quản lý khách hàng",
+      "item": [
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Tạo đơn thành công', function () {",
-              "    pm.response.to.have.status(201);",
-              "});",
-              "const data = pm.response.json();",
-              "pm.collectionVariables.set('order_id', data.order.id);"
-            ]
+          "name": "Tạo khách thành viên hạng vàng",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Lê Hoàng Nam\",\n  \"phone\": \"0901999000\",\n  \"note\": \"Khách thành viên hạng vàng\",\n  \"customer_type\": \"thanh_vien\",\n  \"member_tier\": \"vang\",\n  \"birth_date\": \"1998-05-12\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Tạo khách hàng thành công', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set('created_customer_id', data.customer.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Xem danh sách khách hàng",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cập nhật ghi chú khách hàng",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Khách ưu tiên bàn gần cửa sổ, nhận ưu đãi theo hạng thành viên\",\n  \"member_tier\": \"vip\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customers/{{created_customer_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "{{created_customer_id}}"
+              ]
+            }
           }
         }
       ]
     },
     {
-      "name": "Xem chi tiết đơn hàng",
-      "request": {
-        "method": "GET",
-        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-        "url": "{{base_url}}/api/orders/{{order_id}}"
-      }
+      "name": "04 - Quản lý menu",
+      "item": [
+        {
+          "name": "Thêm món mới theo mùa",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Combo Trưa Văn Phòng\",\n  \"description\": \"Set sushi dùng nhanh cho bữa trưa\",\n  \"price\": 99000,\n  \"category_id\": 4\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/menu-items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "menu-items"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Thêm món thành công', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set('created_menu_item_id', data.menu_item.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cập nhật món sang hết món",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"het_mon\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/menu-items/{{created_menu_item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "menu-items",
+                "{{created_menu_item_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cập nhật món sang còn món",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 109000,\n  \"status\": \"con_mon\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/menu-items/{{created_menu_item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "menu-items",
+                "{{created_menu_item_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ẩn món mới khỏi menu",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/menu-items/{{created_menu_item_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "menu-items",
+                "{{created_menu_item_id}}"
+              ]
+            }
+          }
+        }
+      ]
     },
     {
-      "name": "Thanh toán đơn hàng",
-      "request": {
-        "method": "POST",
-        "header": [
-          {"key": "Content-Type", "value": "application/json"},
-          {"key": "Authorization", "value": "Bearer {{token}}"}
-        ],
-        "body": {"mode": "raw", "raw": "{\n  \"order_id\": {{order_id}},\n  \"payment_method\": \"tien_mat\"\n}"},
-        "url": "{{base_url}}/api/payments"
-      }
+      "name": "05 - Bàn và đơn hàng",
+      "item": [
+        {
+          "name": "Đặt bàn 2 giữ trong 15 phút",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"da_dat\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tables/2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tables",
+                "2"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cập nhật bàn 1 về trạng thái trống",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"trong\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tables/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tables",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Tạo đơn gọi món",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"table_id\": 1,\n  \"customer_id\": {{created_customer_id}},\n  \"items\": [\n    {\n      \"menu_item_id\": 1,\n      \"quantity\": 2\n    },\n    {\n      \"menu_item_id\": 4,\n      \"quantity\": 1\n    },\n    {\n      \"menu_item_id\": 14,\n      \"quantity\": 2\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Tạo đơn thành công', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set('order_id', data.order.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Xem danh sách đơn hàng",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Xem chi tiết đơn hàng vừa tạo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "{{order_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cập nhật đơn sang đã phục vụ",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"da_phuc_vu\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{order_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "{{order_id}}",
+                "status"
+              ]
+            }
+          }
+        }
+      ]
     },
     {
-      "name": "Thống kê doanh thu",
-      "request": {
-        "method": "GET",
-        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-        "url": "{{base_url}}/api/statistics/revenue"
-      }
+      "name": "06 - Thanh toán",
+      "item": [
+        {
+          "name": "Thanh toán đơn hàng",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": {{order_id}},\n  \"payment_method\": \"tien_mat\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "payments"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Thanh toán thành công', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set('payment_id', data.payment.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Xem lịch sử thanh toán",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "payments"
+              ]
+            }
+          }
+        }
+      ]
     },
     {
-      "name": "Món bán chạy",
-      "request": {
-        "method": "GET",
-        "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
-        "url": "{{base_url}}/api/statistics/popular-items"
-      }
+      "name": "07 - Quản trị và thống kê",
+      "item": [
+        {
+          "name": "Xem danh sách người dùng",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Thống kê tổng quan",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/statistics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "statistics"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Thống kê doanh thu",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/revenue",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "statistics",
+                "revenue"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Thống kê doanh thu theo ngày",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/revenue?tu_ngay=2026-05-01&den_ngay=2026-05-24",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "statistics",
+                "revenue"
+              ],
+              "query": [
+                {
+                  "key": "tu_ngay",
+                  "value": "2026-05-01"
+                },
+                {
+                  "key": "den_ngay",
+                  "value": "2026-05-24"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Top món bán chạy",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/popular-items?top=5",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "statistics",
+                "popular-items"
+              ],
+              "query": [
+                {
+                  "key": "top",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Đăng xuất cuối kịch bản",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
