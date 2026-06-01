@@ -1,24 +1,23 @@
-from flask import Blueprint, request, jsonify
-from app.extensions import db
-from app.models import Role, User
+from flask import Blueprint
+from app.services import UserService
 from app.utils.auth import auth_required
+from app.utils.response import get_json_data, list_response, service_error_response, success_response
 
 user_bp = Blueprint('user_bp', __name__, url_prefix='/api/users')
+_svc = UserService()
+
 
 @user_bp.get('')
 @auth_required('admin')
 def get_users():
-    users = User.query.order_by(User.id).all()
-    return jsonify([user.to_dict() for user in users])
+    return list_response(_svc.get_all())
+
 
 @user_bp.put('/<int:user_id>/role')
 @auth_required('admin')
 def update_user_role(user_id):
-    user = User.query.get_or_404(user_id)
-    data = request.get_json() or {}
-    role = Role.query.filter_by(name=data.get('role')).first()
-    if not role:
-        return jsonify({'message': 'Vai trò không tồn tại'}), 400
-    user.role_id = role.id
-    db.session.commit()
-    return jsonify({'message': 'Cập nhật quyền thành công', 'user': user.to_dict()})
+    try:
+        user = _svc.update_role(user_id, get_json_data().get('role'))
+        return success_response('Cập nhật quyền thành công', user=user.to_dict())
+    except ValueError as e:
+        return service_error_response(e)

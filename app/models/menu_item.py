@@ -12,6 +12,11 @@ class MenuItem(db.Model):
 
     category = db.relationship('Category', back_populates='menu_items')
     order_details = db.relationship('OrderDetail', back_populates='menu_item')
+    ingredients = db.relationship(
+        'MenuItemIngredient',
+        back_populates='menu_item',
+        cascade='all, delete-orphan',
+    )
 
     def to_dict(self):
         return {

@@ -1,48 +1,46 @@
 """
 app/controllers/statistic_controller.py
 =========================================
-Controller thống kê – chỉ admin xem được.
+Controller thong ke - chi admin xem duoc.
 """
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from app.services import StatisticService
 from app.utils.auth import auth_required
+from app.utils.response import data_response
 
 statistic_bp = Blueprint('statistic_bp', __name__, url_prefix='/api/statistics')
-
 _svc = StatisticService()
 
 
 @statistic_bp.get('')
 @auth_required('admin')
 def tong_quan():
-    """Tóm tắt tổng quan: doanh thu + top 5 món bán chạy."""
-    return jsonify(_svc.get_all())
+    return data_response(_svc.get_all())
 
 
 @statistic_bp.get('/revenue')
 @auth_required('admin')
 def revenue():
-    """
-    Thống kê doanh thu, có thể lọc theo ngày.
-
-    Query params:
-        tu_ngay  = YYYY-MM-DD   (tuỳ chọn)
-        den_ngay = YYYY-MM-DD   (tuỳ chọn)
-    """
-    tu_ngay  = request.args.get('tu_ngay')
+    tu_ngay = request.args.get('tu_ngay')
     den_ngay = request.args.get('den_ngay')
-    return jsonify(_svc.thong_ke_doanh_thu(tu_ngay, den_ngay))
+    return data_response(_svc.thong_ke_doanh_thu(tu_ngay, den_ngay))
 
 
 @statistic_bp.get('/popular-items')
 @auth_required('admin')
 def popular_items():
-    """
-    Top N món bán chạy nhất.
-
-    Query params:
-        top = số nguyên (mặc định 5)
-    """
     top_n = int(request.args.get('top', 5))
-    return jsonify(_svc.mon_ban_chay(top_n))
+    return data_response(_svc.mon_ban_chay(top_n))
+
+
+@statistic_bp.get('/by-day')
+@auth_required('admin')
+def revenue_by_day():
+    return data_response(_svc.doanh_thu_theo_ngay())
+
+
+@statistic_bp.get('/by-staff')
+@auth_required('admin')
+def revenue_by_staff():
+    return data_response(_svc.doanh_thu_theo_nhan_vien())

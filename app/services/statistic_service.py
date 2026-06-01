@@ -5,50 +5,89 @@ from app.services.base_service import ABCBaseService
 
 
 class StatisticService(ABCBaseService):
-    """Tính doanh thu và món bán chạy."""
+    """Tinh doanh thu va mon ban chay."""
 
     def get_all(self):
-        doanh_thu = self.__query_doanh_thu()
+        revenue = self.__query_doanh_thu()
         return {
-            'tong_don_da_thanh_toan': doanh_thu['so_don'],
-            'tong_doanh_thu':         doanh_thu['tong_tien'],
-            'top_5_mon_ban_chay':     self.__query_mon_ban_chay(top_n=5),
-            'currency':               'VND',
+            'tong_don_da_thanh_toan': revenue['so_don'],
+            'tong_doanh_thu': revenue['tong_tien'],
+            'top_5_mon_ban_chay': self.__query_mon_ban_chay(top_n=5),
+            'currency': 'VND',
         }
 
     def get_by_id(self, record_id):
         return None
 
     def thong_ke_doanh_thu(self, tu_ngay=None, den_ngay=None):
-        ket_qua = self.__query_doanh_thu(tu_ngay, den_ngay)
+        result = self.__query_doanh_thu(tu_ngay, den_ngay)
         return {
-            'tu_ngay':        str(tu_ngay)  if tu_ngay  else None,
-            'den_ngay':       str(den_ngay) if den_ngay else None,
-            'so_don':         ket_qua['so_don'],
-            'tong_doanh_thu': ket_qua['tong_tien'],
-            'currency':       'VND',
+            'tu_ngay': str(tu_ngay) if tu_ngay else None,
+            'den_ngay': str(den_ngay) if den_ngay else None,
+            'so_don': result['so_don'],
+            'tong_doanh_thu': result['tong_tien'],
+            'currency': 'VND',
         }
 
     def mon_ban_chay(self, top_n=5):
         return self.__query_mon_ban_chay(top_n)
 
+    def doanh_thu_theo_ngay(self):
+        rows = (
+            db.session.query(
+                func.date(Order.created_at).label('ngay'),
+                func.count(Order.id).label('so_don'),
+                func.coalesce(func.sum(Order.total_amount), 0).label('tong_tien'),
+            )
+            .filter(Order.status == 'da_thanh_toan')
+            .group_by(func.date(Order.created_at))
+            .order_by(func.date(Order.created_at))
+            .all()
+        )
+        return [
+            {
+                'ngay': str(row.ngay),
+                'so_don': int(row.so_don or 0),
+                'tong_doanh_thu': int(row.tong_tien or 0),
+                'currency': 'VND',
+            }
+            for row in rows
+        ]
+
+    def doanh_thu_theo_nhan_vien(self):
+        rows = (
+            db.session.query(
+                Order.created_by_user_id.label('user_id'),
+                func.count(Order.id).label('so_don'),
+                func.coalesce(func.sum(Order.total_amount), 0).label('tong_tien'),
+            )
+            .filter(Order.status == 'da_thanh_toan')
+            .group_by(Order.created_by_user_id)
+            .all()
+        )
+        return [
+            {
+                'user_id': row.user_id,
+                'so_don': int(row.so_don or 0),
+                'tong_doanh_thu': int(row.tong_tien or 0),
+                'currency': 'VND',
+            }
+            for row in rows
+        ]
+
     def __query_doanh_thu(self, tu_ngay=None, den_ngay=None):
-        qs = Order.query.filter_by(status='da_thanh_toan')
+        query = Order.query.filter_by(status='da_thanh_toan')
 
         if tu_ngay:
-            qs = qs.filter(Order.created_at >= tu_ngay)
+            query = query.filter(Order.created_at >= tu_ngay)
         if den_ngay:
-            qs = qs.filter(Order.created_at <= den_ngay)
+            query = query.filter(Order.created_at <= den_ngay)
 
-        tong_tien = db.session.query(
-            func.coalesce(func.sum(Order.total_amount), 0)
-        ).filter(
-            Order.status == 'da_thanh_toan'
-        ).scalar()
+        total = query.with_entities(func.coalesce(func.sum(Order.total_amount), 0)).scalar()
 
         return {
-            'so_don':    qs.count(),
-            'tong_tien': int(tong_tien or 0),
+            'so_don': query.count(),
+            'tong_tien': int(total or 0),
         }
 
     def __query_mon_ban_chay(self, top_n=5):
@@ -67,9 +106,9 @@ class StatisticService(ABCBaseService):
 
         return [
             {
-                'ten_mon':       row.name,
+                'ten_mon': row.name,
                 'tong_so_luong': int(row.tong_so_luong or 0),
-                'tong_tien':     int(row.tong_tien     or 0),
+                'tong_tien': int(row.tong_tien or 0),
             }
             for row in rows
         ]
