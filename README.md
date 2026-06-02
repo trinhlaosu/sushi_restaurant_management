@@ -217,16 +217,33 @@ Import collection:
 postman/Nhom07_Sushi_API.postman_collection.json
 ```
 
-Luồng test cơ bản:
+Collection hiện được chia theo từng quyền người dùng:
 
-1. `GET /api/health`
-2. `POST /api/auth/login`
-3. Copy token vào header `Authorization`.
-4. Tạo món/danh mục/bàn/khách hàng nếu cần.
-5. `POST /api/orders`
-6. `POST /api/payments`
-7. `GET /api/invoices/<order_id>`
-8. `GET /api/statistics`
+```text
+00 - Public
+01 - Admin Scenario
+02 - Staff Scenario
+03 - Cashier Scenario
+04 - Admin Reports And Cleanup
+```
+
+Trước khi chạy collection:
+
+```powershell
+python seed.py
+python run.py
+```
+
+Thứ tự chạy đề xuất trong Postman:
+
+1. Chạy folder `00 - Public` để kiểm tra server và API public.
+2. Chạy folder `01 - Admin Scenario` để login admin, tạo dữ liệu quản trị như danh mục, món, bàn, voucher, nguyên liệu.
+3. Chạy folder `02 - Staff Scenario` để login staff, tạo khách hàng, đặt bàn, check-in ca, tạo đơn gọi món.
+4. Chạy folder `03 - Cashier Scenario` để login cashier, thanh toán đơn và xem hóa đơn.
+5. Chạy folder `04 - Admin Reports And Cleanup` để xem báo cáo, activity log và logout các tài khoản.
+
+Collection tự lưu các biến như `admin_token`, `staff_token`, `cashier_token`,
+`created_customer_id`, `order_id`, `payment_id` sau các request tạo dữ liệu.
 
 ## 12. Tổng Số Và Danh Sách API
 

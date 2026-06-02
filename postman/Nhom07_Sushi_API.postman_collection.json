@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Nhóm 07 - API Quản lý nhà hàng Sushi - Kịch bản kiểm thử",
-    "description": "Collection kiểm thử các API quan trọng nhất: đăng nhập, xem dữ liệu nền, tạo khách hàng, thêm món, tạo đơn, cập nhật trạng thái, thanh toán và thống kê.",
+    "name": "Nhom 07 - Sushi Restaurant API - Role Scenarios",
+    "description": "Postman collection chia kich ban theo tung quyen nguoi dung: Public, Admin, Staff, Cashier. Chay theo thu tu folder tu tren xuong duoi sau khi da chay python seed.py va python run.py.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -10,7 +10,27 @@
       "value": "http://127.0.0.1:5000"
     },
     {
-      "key": "token",
+      "key": "admin_token",
+      "value": ""
+    },
+    {
+      "key": "staff_token",
+      "value": ""
+    },
+    {
+      "key": "cashier_token",
+      "value": ""
+    },
+    {
+      "key": "created_category_id",
+      "value": ""
+    },
+    {
+      "key": "created_menu_item_id",
+      "value": ""
+    },
+    {
+      "key": "created_table_id",
       "value": ""
     },
     {
@@ -18,7 +38,23 @@
       "value": ""
     },
     {
-      "key": "created_menu_item_id",
+      "key": "created_discount_id",
+      "value": ""
+    },
+    {
+      "key": "created_discount_code",
+      "value": ""
+    },
+    {
+      "key": "created_ingredient_id",
+      "value": ""
+    },
+    {
+      "key": "created_reservation_id",
+      "value": ""
+    },
+    {
+      "key": "created_shift_id",
       "value": ""
     },
     {
@@ -32,10 +68,10 @@
   ],
   "item": [
     {
-      "name": "00 - Kiểm tra hệ thống",
+      "name": "00 - Public",
       "item": [
         {
-          "name": "Kiểm tra API đang chạy",
+          "name": "Health check",
           "request": {
             "method": "GET",
             "header": [],
@@ -56,21 +92,56 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('API đang chạy', function () {",
-                  "    pm.response.to.have.status(200);",
+                  "pm.test('Health check OK', function () {",
+                  "  pm.response.to.have.status(200);",
                   "});"
                 ]
               }
             }
           ]
+        },
+        {
+          "name": "Public - List menu items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/menu-items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "menu-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Public - Menu item detail 1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/menu-items/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "menu-items",
+                "1"
+              ]
+            }
+          }
         }
       ]
     },
     {
-      "name": "01 - Xác thực",
+      "name": "01 - Admin Scenario",
       "item": [
         {
-          "name": "Đăng nhập quản trị và lưu token",
+          "name": "Admin login - save admin_token",
           "request": {
             "method": "POST",
             "header": [
@@ -101,32 +172,56 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Đăng nhập thành công', function () {",
-                  "    pm.response.to.have.status(200);",
+                  "pm.test('Admin login OK', function () {",
+                  "  pm.response.to.have.status(200);",
                   "});",
                   "const data = pm.response.json();",
-                  "pm.expect(data.token).to.be.a('string').and.not.empty;",
-                  "pm.collectionVariables.set('token', data.token);"
+                  "pm.collectionVariables.set('admin_token', data.token);"
                 ]
               }
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "02 - Dữ liệu nền",
-      "item": [
+        },
         {
-          "name": "Xem danh sách danh mục",
+          "name": "Admin - List users",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{admin_token}}"
               }
             ],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Create category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Category {{$timestamp}}\",\n  \"description\": \"Category created by admin scenario\"\n}"
+            },
             "url": {
               "raw": "{{base_url}}/api/categories",
               "host": [
@@ -137,13 +232,71 @@
                 "categories"
               ]
             }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create category OK', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.collectionVariables.set('created_category_id', pm.response.json().category.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin - Update category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated by admin scenario\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{created_category_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{created_category_id}}"
+              ]
+            }
           }
         },
         {
-          "name": "Xem danh sách món ăn",
+          "name": "Admin - Create menu item",
           "request": {
-            "method": "GET",
-            "header": [],
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Roll {{$timestamp}}\",\n  \"description\": \"Created by admin scenario\",\n  \"price\": 99000,\n  \"category_id\": 1\n}"
+            },
             "url": {
               "raw": "{{base_url}}/api/menu-items",
               "host": [
@@ -154,34 +307,295 @@
                 "menu-items"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create menu item OK', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.collectionVariables.set('created_menu_item_id', pm.response.json().menu_item.id);"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "Xem chi tiết món ăn mã 1",
+          "name": "Admin - Update menu item",
           "request": {
-            "method": "GET",
-            "header": [],
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 109000,\n  \"is_available\": true\n}"
+            },
             "url": {
-              "raw": "{{base_url}}/api/menu-items/1",
+              "raw": "{{base_url}}/api/menu-items/{{created_menu_item_id}}",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "menu-items",
-                "1"
+                "{{created_menu_item_id}}"
               ]
             }
           }
         },
         {
-          "name": "Xem danh sách bàn",
+          "name": "Admin - Create table",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"table_number\": \"PM{{$timestamp}}\",\n  \"seats\": 4,\n  \"status\": \"trong\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tables",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tables"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create table OK', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.collectionVariables.set('created_table_id', pm.response.json().table.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin - Create discount",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"code\": \"PM{{$timestamp}}\",\n  \"discount_type\": \"percent\",\n  \"value\": 10,\n  \"usage_limit\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/discounts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "discounts"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create discount OK', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "const discount = pm.response.json().discount;",
+                  "pm.collectionVariables.set('created_discount_id', discount.id);",
+                  "pm.collectionVariables.set('created_discount_code', discount.code);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin - Create ingredient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman Salmon {{$timestamp}}\",\n  \"unit\": \"gram\",\n  \"stock_quantity\": 1000,\n  \"min_quantity\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ingredients",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "ingredients"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create ingredient OK', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.collectionVariables.set('created_ingredient_id', pm.response.json().ingredient.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin - Set recipe for menu item 1",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ingredients\": [\n    {\n      \"ingredient_id\": {{created_ingredient_id}},\n      \"quantity\": 10\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/menu-items/1/ingredients",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "menu-items",
+                "1",
+                "ingredients"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Statistics overview",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/statistics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "statistics"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Staff Scenario",
+      "item": [
+        {
+          "name": "Staff login - save staff_token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"staff\",\n  \"password\": \"staff123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Staff login OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.collectionVariables.set('staff_token', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Staff - List tables",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{staff_token}}"
               }
             ],
             "url": {
@@ -195,14 +609,9 @@
               ]
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "03 - Quản lý khách hàng",
-      "item": [
+        },
         {
-          "name": "Tạo khách thành viên hạng vàng",
+          "name": "Staff - Create customer",
           "request": {
             "method": "POST",
             "header": [
@@ -212,12 +621,12 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{staff_token}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"full_name\": \"Lê Hoàng Nam\",\n  \"phone\": \"0901999000\",\n  \"note\": \"Khách thành viên hạng vàng\",\n  \"customer_type\": \"thanh_vien\",\n  \"member_tier\": \"vang\",\n  \"birth_date\": \"1998-05-12\"\n}"
+              "raw": "{\n  \"full_name\": \"Postman Customer {{$timestamp}}\",\n  \"phone\": \"09{{$timestamp}}\",\n  \"note\": \"Created by staff scenario\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/customers",
@@ -236,76 +645,17 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Tạo khách hàng thành công', function () {",
-                  "    pm.response.to.have.status(201);",
+                  "pm.test('Create customer OK', function () {",
+                  "  pm.response.to.have.status(201);",
                   "});",
-                  "const data = pm.response.json();",
-                  "pm.collectionVariables.set('created_customer_id', data.customer.id);"
+                  "pm.collectionVariables.set('created_customer_id', pm.response.json().customer.id);"
                 ]
               }
             }
           ]
         },
         {
-          "name": "Xem danh sách khách hàng",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/customers",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "customers"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Cập nhật ghi chú khách hàng",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"note\": \"Khách ưu tiên bàn gần cửa sổ, nhận ưu đãi theo hạng thành viên\",\n  \"member_tier\": \"vip\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/customers/{{created_customer_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "customers",
-                "{{created_customer_id}}"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "04 - Quản lý menu",
-      "item": [
-        {
-          "name": "Thêm món mới theo mùa",
+          "name": "Staff - Create reservation",
           "request": {
             "method": "POST",
             "header": [
@@ -315,21 +665,21 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{staff_token}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Combo Trưa Văn Phòng\",\n  \"description\": \"Set sushi dùng nhanh cho bữa trưa\",\n  \"price\": 99000,\n  \"category_id\": 4\n}"
+              "raw": "{\n  \"table_id\": 2,\n  \"customer_id\": {{created_customer_id}},\n  \"reservation_time\": \"2030-01-01T18:00:00\",\n  \"guest_count\": 2,\n  \"note\": \"Staff reservation scenario\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/api/menu-items",
+              "raw": "{{base_url}}/api/reservations",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
-                "menu-items"
+                "reservations"
               ]
             }
           },
@@ -339,170 +689,17 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Thêm món thành công', function () {",
-                  "    pm.response.to.have.status(201);",
+                  "pm.test('Create reservation OK', function () {",
+                  "  pm.response.to.have.status(201);",
                   "});",
-                  "const data = pm.response.json();",
-                  "pm.collectionVariables.set('created_menu_item_id', data.menu_item.id);"
+                  "pm.collectionVariables.set('created_reservation_id', pm.response.json().reservation.id);"
                 ]
               }
             }
           ]
         },
         {
-          "name": "Cập nhật món sang hết món",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"het_mon\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/menu-items/{{created_menu_item_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "menu-items",
-                "{{created_menu_item_id}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Cập nhật món sang còn món",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"price\": 109000,\n  \"status\": \"con_mon\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/menu-items/{{created_menu_item_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "menu-items",
-                "{{created_menu_item_id}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Ẩn món mới khỏi menu",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/menu-items/{{created_menu_item_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "menu-items",
-                "{{created_menu_item_id}}"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "05 - Bàn và đơn hàng",
-      "item": [
-        {
-          "name": "Đặt bàn 2 giữ trong 15 phút",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"da_dat\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/tables/2",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "tables",
-                "2"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Cập nhật bàn 1 về trạng thái trống",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"trong\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/tables/1",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "tables",
-                "1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Tạo đơn gọi món",
+          "name": "Staff - Check in shift",
           "request": {
             "method": "POST",
             "header": [
@@ -512,12 +709,59 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{staff_token}}"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"table_id\": 1,\n  \"customer_id\": {{created_customer_id}},\n  \"items\": [\n    {\n      \"menu_item_id\": 1,\n      \"quantity\": 2\n    },\n    {\n      \"menu_item_id\": 4,\n      \"quantity\": 1\n    },\n    {\n      \"menu_item_id\": 14,\n      \"quantity\": 2\n    }\n  ]\n}"
+              "raw": "{\n  \"user_id\": 2,\n  \"note\": \"Staff shift from Postman\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/shifts/check-in",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "shifts",
+                "check-in"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Check in OK or already active', function () {",
+                  "  pm.expect([201, 400]).to.include(pm.response.code);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('created_shift_id', pm.response.json().shift.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Staff - Create order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{staff_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"table_id\": 1,\n  \"customer_id\": {{created_customer_id}},\n  \"discount_code\": \"{{created_discount_code}}\",\n  \"items\": [\n    {\n      \"menu_item_id\": 1,\n      \"quantity\": 2\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/orders",
@@ -536,46 +780,23 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Tạo đơn thành công', function () {",
-                  "    pm.response.to.have.status(201);",
+                  "pm.test('Create order OK', function () {",
+                  "  pm.response.to.have.status(201);",
                   "});",
-                  "const data = pm.response.json();",
-                  "pm.collectionVariables.set('order_id', data.order.id);"
+                  "pm.collectionVariables.set('order_id', pm.response.json().order.id);"
                 ]
               }
             }
           ]
         },
         {
-          "name": "Xem danh sách đơn hàng",
+          "name": "Staff - Order detail",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/orders",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "orders"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Xem chi tiết đơn hàng vừa tạo",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{staff_token}}"
               }
             ],
             "url": {
@@ -592,7 +813,7 @@
           }
         },
         {
-          "name": "Cập nhật đơn sang đã phục vụ",
+          "name": "Staff - Update order status to served",
           "request": {
             "method": "PUT",
             "header": [
@@ -602,7 +823,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{staff_token}}"
               }
             ],
             "body": {
@@ -622,14 +843,90 @@
               ]
             }
           }
+        },
+        {
+          "name": "Staff - Try list users (expect 403)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{staff_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Staff cannot list users', function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "06 - Thanh toán",
+      "name": "03 - Cashier Scenario",
       "item": [
         {
-          "name": "Thanh toán đơn hàng",
+          "name": "Cashier login - save cashier_token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"cashier\",\n  \"password\": \"cashier123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cashier login OK', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.collectionVariables.set('cashier_token', pm.response.json().token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cashier - Pay order",
           "request": {
             "method": "POST",
             "header": [
@@ -639,7 +936,7 @@
               },
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{cashier_token}}"
               }
             ],
             "body": {
@@ -663,24 +960,23 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Thanh toán thành công', function () {",
-                  "    pm.response.to.have.status(201);",
+                  "pm.test('Pay order OK', function () {",
+                  "  pm.response.to.have.status(201);",
                   "});",
-                  "const data = pm.response.json();",
-                  "pm.collectionVariables.set('payment_id', data.payment.id);"
+                  "pm.collectionVariables.set('payment_id', pm.response.json().payment.id);"
                 ]
               }
             }
           ]
         },
         {
-          "name": "Xem lịch sử thanh toán",
+          "name": "Cashier - List payments",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{cashier_token}}"
               }
             ],
             "url": {
@@ -694,64 +990,86 @@
               ]
             }
           }
+        },
+        {
+          "name": "Cashier - Get invoice",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{cashier_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/invoices/{{order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "invoices",
+                "{{order_id}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cashier - Try create menu item (expect 403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{cashier_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cashier Cannot Create\",\n  \"price\": 10000,\n  \"category_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/menu-items",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "menu-items"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Cashier cannot create menu item', function () {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "name": "07 - Quản trị và thống kê",
+      "name": "04 - Admin Reports And Cleanup",
       "item": [
         {
-          "name": "Xem danh sách người dùng",
+          "name": "Admin - Revenue",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/users",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "users"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Thống kê tổng quan",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/statistics",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "statistics"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Thống kê doanh thu",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{admin_token}}"
               }
             ],
             "url": {
@@ -768,46 +1086,13 @@
           }
         },
         {
-          "name": "Thống kê doanh thu theo ngày",
+          "name": "Admin - Popular items",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/statistics/revenue?tu_ngay=2026-05-01&den_ngay=2026-05-24",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "statistics",
-                "revenue"
-              ],
-              "query": [
-                {
-                  "key": "tu_ngay",
-                  "value": "2026-05-01"
-                },
-                {
-                  "key": "den_ngay",
-                  "value": "2026-05-24"
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Top món bán chạy",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{admin_token}}"
               }
             ],
             "url": {
@@ -830,13 +1115,127 @@
           }
         },
         {
-          "name": "Đăng xuất cuối kịch bản",
+          "name": "Admin - Revenue by day",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/by-day",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "statistics",
+                "by-day"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Revenue by staff",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/statistics/by-staff",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "statistics",
+                "by-staff"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Activity logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/activity-logs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "activity-logs"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Admin - Logout",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "Authorization",
-                "value": "Bearer {{token}}"
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Staff - Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{staff_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cashier - Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{cashier_token}}"
               }
             ],
             "url": {
