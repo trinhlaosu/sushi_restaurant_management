@@ -1,4 +1,4 @@
-from tests.base import ApiTestBase
+from tests.unittest.base import ApiTestBase
 
 
 class ReservationDiscountInventoryApiTest(ApiTestBase):
@@ -25,6 +25,16 @@ class ReservationDiscountInventoryApiTest(ApiTestBase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()['reservation']['status'], 'da_xac_nhan')
+
+    def test_put_reservation_rejects_guest_count_over_table_seats(self):
+        created = self._create_reservation()
+        reservation_id = created.get_json()['reservation']['id']
+
+        response = self.client.put(f'/api/reservations/{reservation_id}', headers=self.staff_headers(), json={
+            'guest_count': 99,
+        })
+
+        self.assertEqual(response.status_code, 400)
 
     def test_delete_reservation(self):
         created = self._create_reservation()

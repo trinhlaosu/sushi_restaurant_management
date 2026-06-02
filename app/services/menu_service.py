@@ -30,7 +30,10 @@ class CategoryService(ABCWritableService):
 
     def update(self, record_id, data):
         danh_muc = self.get_by_id(record_id)
-        danh_muc.name = data.get('name', danh_muc.name)
+        if data.get('name'):
+            ten = data['name'].strip()
+            self.__kiem_tra_ten_trung(ten, exclude_id=danh_muc.id)
+            danh_muc.name = ten
         danh_muc.description = data.get('description', danh_muc.description)
         db.session.commit()
         return danh_muc
@@ -40,8 +43,11 @@ class CategoryService(ABCWritableService):
         db.session.delete(danh_muc)
         db.session.commit()
 
-    def __kiem_tra_ten_trung(self, ten):
-        if Category.query.filter_by(name=ten).first():
+    def __kiem_tra_ten_trung(self, ten, exclude_id=None):
+        query = Category.query.filter_by(name=ten)
+        if exclude_id:
+            query = query.filter(Category.id != exclude_id)
+        if query.first():
             raise ValueError(f'Danh muc "{ten}" da ton tai')
 
     def __str__(self):
@@ -67,6 +73,7 @@ class MenuItemService(ABCWritableService):
             raise ValueError('Thieu name, price hoac category_id')
         if int(gia) <= 0:
             raise ValueError('Gia mon phai lon hon 0')
+        self.__kiem_tra_danh_muc(dm_id)
 
         self.__kiem_tra_trang_thai(trang_thai)
 
@@ -100,6 +107,7 @@ class MenuItemService(ABCWritableService):
                 raise ValueError('Gia mon phai lon hon 0')
             mon.price = int(data['price'])
         if data.get('category_id'):
+            self.__kiem_tra_danh_muc(data['category_id'])
             mon.category_id = data['category_id']
         db.session.commit()
         return mon
@@ -114,6 +122,10 @@ class MenuItemService(ABCWritableService):
     def __kiem_tra_trang_thai(self, trang_thai):
         if trang_thai not in MENU_ITEM_STATUSES:
             raise ValueError(f'Trang thai mon khong hop le. Chon mot trong: {MENU_ITEM_STATUSES}')
+
+    def __kiem_tra_danh_muc(self, category_id):
+        if not Category.query.get(category_id):
+            raise ValueError('Danh muc khong ton tai')
 
     def __str__(self):
         return 'MenuItemService()'

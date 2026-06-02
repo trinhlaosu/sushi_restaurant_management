@@ -1,6 +1,6 @@
 from sqlalchemy import func
 from app.extensions import db
-from app.models import MenuItem, Order, OrderDetail
+from app.models import MenuItem, Order, OrderDetail, User
 from app.services.base_service import ABCBaseService
 
 
@@ -32,6 +32,57 @@ class StatisticService(ABCBaseService):
     def mon_ban_chay(self, top_n=5):
         return self.__query_mon_ban_chay(top_n)
 
+    def doanh_thu_theo_ngay(self):
+        rows = (
+            db.session.query(
+                func.date(Order.created_at).label('ngay'),
+                func.count(Order.id).label('so_don'),
+                func.coalesce(func.sum(Order.final_amount), 0).label('tong_doanh_thu'),
+            )
+            .filter(Order.status == 'da_thanh_toan')
+            .group_by(func.date(Order.created_at))
+            .order_by(func.date(Order.created_at).desc())
+            .all()
+        )
+
+        return [
+            {
+                'ngay': row.ngay,
+                'so_don': int(row.so_don or 0),
+                'tong_doanh_thu': int(row.tong_doanh_thu or 0),
+                'currency': 'VND',
+            }
+            for row in rows
+        ]
+
+    def doanh_thu_theo_nhan_vien(self):
+        rows = (
+            db.session.query(
+                User.id.label('user_id'),
+                User.full_name.label('full_name'),
+                User.username.label('username'),
+                func.count(Order.id).label('so_don'),
+                func.coalesce(func.sum(Order.final_amount), 0).label('tong_doanh_thu'),
+            )
+            .join(Order, Order.created_by_user_id == User.id)
+            .filter(Order.status == 'da_thanh_toan')
+            .group_by(User.id, User.full_name, User.username)
+            .order_by(func.sum(Order.final_amount).desc())
+            .all()
+        )
+
+        return [
+            {
+                'user_id': row.user_id,
+                'full_name': row.full_name,
+                'username': row.username,
+                'so_don': int(row.so_don or 0),
+                'tong_doanh_thu': int(row.tong_doanh_thu or 0),
+                'currency': 'VND',
+            }
+            for row in rows
+        ]
+
     def __query_doanh_thu(self, tu_ngay=None, den_ngay=None):
         qs = Order.query.filter_by(status='da_thanh_toan')
 
@@ -40,11 +91,7 @@ class StatisticService(ABCBaseService):
         if den_ngay:
             qs = qs.filter(Order.created_at <= den_ngay)
 
-        tong_tien = db.session.query(
-            func.coalesce(func.sum(Order.final_amount), 0)
-        ).filter(
-            Order.status == 'da_thanh_toan'
-        ).scalar()
+        tong_tien = qs.with_entities(func.coalesce(func.sum(Order.final_amount), 0)).scalar()
 
         return {
             'so_don':    qs.count(),
@@ -59,6 +106,8 @@ class StatisticService(ABCBaseService):
                 func.sum(OrderDetail.subtotal).label('tong_tien'),
             )
             .join(OrderDetail, MenuItem.id == OrderDetail.menu_item_id)
+            .join(Order, Order.id == OrderDetail.order_id)
+            .filter(Order.status == 'da_thanh_toan')
             .group_by(MenuItem.id, MenuItem.name)
             .order_by(func.sum(OrderDetail.quantity).desc())
             .limit(top_n)

@@ -32,7 +32,9 @@ sushi_restaurant_management/
 |-- database/               # SQLite database
 |-- docs/                   # Tài liệu, mô tả kiến trúc
 |-- postman/                # Postman collection
-|-- tests/                  # Unit test API
+|-- tests/
+|   |-- test_all_api.py     # Integration test duyet luong tong hop voi database that
+|   `-- unittest/           # Unit test API
 |-- config.py
 |-- run.py
 |-- seed.py
@@ -188,20 +190,34 @@ Authorization: Bearer <token>
 ## 10. Chạy Unit Test
 
 ```powershell
-python -m unittest discover -s tests -v
+python -m unittest discover -s tests/unittest -v
 ```
 
 Test hiện tại đã được tách theo nhóm API trong nhiều file:
 
 ```text
 tests/
-|-- base.py
-|-- test_health_auth_user.py
-|-- test_catalog_api.py
-|-- test_people_table_api.py
-|-- test_order_payment_api.py
-|-- test_reservation_discount_inventory_api.py
-`-- test_shift_log_statistics_api.py
+`-- unittest/
+    |-- base.py
+    |-- test_health_auth_user.py
+    |-- test_catalog_api.py
+    |-- test_people_table_api.py
+    |-- test_order_payment_api.py
+    |-- test_reservation_discount_inventory_api.py
+    `-- test_shift_log_statistics_api.py
+```
+
+Test all API voi database that duoc tach rieng ben ngoai folder unit test:
+
+```text
+tests/test_all_api.py
+```
+
+Mac dinh test nay bi skip de tranh ghi vao database that. Khi can chay:
+
+```powershell
+$env:RUN_REAL_DB_TESTS='1'
+python -m unittest tests.test_all_api -v
 ```
 
 Bộ test có **56 test case**:

@@ -109,7 +109,7 @@ cac module.
 
 ## 7. Unit test
 
-File `tests/test_api.py` cover cac nhom API chinh:
+Folder `tests/unittest/` cover cac nhom API chinh:
 
 - Auth va phan quyen.
 - CRUD cac module quan ly.

@@ -13,14 +13,19 @@ class IngredientService(ABCWritableService):
     def create(self, data):
         name = data.get('name', '').strip()
         if not name:
-            raise ValueError('Tên nguyên liệu không được để trống')
+            raise ValueError('Ten nguyen lieu khong duoc de trong')
         if Ingredient.query.filter_by(name=name).first():
-            raise ValueError('Nguyên liệu đã tồn tại')
+            raise ValueError('Nguyen lieu da ton tai')
+
+        stock_quantity = float(data.get('stock_quantity', 0))
+        min_quantity = float(data.get('min_quantity', 0))
+        self._validate_quantities(stock_quantity, min_quantity)
+
         ingredient = Ingredient(
             name=name,
             unit=data.get('unit', 'gram'),
-            stock_quantity=float(data.get('stock_quantity', 0)),
-            min_quantity=float(data.get('min_quantity', 0)),
+            stock_quantity=stock_quantity,
+            min_quantity=min_quantity,
         )
         db.session.add(ingredient)
         db.session.commit()
@@ -31,9 +36,15 @@ class IngredientService(ABCWritableService):
         ingredient.name = data.get('name', ingredient.name)
         ingredient.unit = data.get('unit', ingredient.unit)
         if data.get('stock_quantity') is not None:
-            ingredient.stock_quantity = float(data['stock_quantity'])
+            stock_quantity = float(data['stock_quantity'])
+            if stock_quantity < 0:
+                raise ValueError('So luong ton kho khong duoc am')
+            ingredient.stock_quantity = stock_quantity
         if data.get('min_quantity') is not None:
-            ingredient.min_quantity = float(data['min_quantity'])
+            min_quantity = float(data['min_quantity'])
+            if min_quantity < 0:
+                raise ValueError('So luong toi thieu khong duoc am')
+            ingredient.min_quantity = min_quantity
         db.session.commit()
         return ingredient
 
@@ -41,6 +52,12 @@ class IngredientService(ABCWritableService):
         ingredient = self.get_by_id(record_id)
         db.session.delete(ingredient)
         db.session.commit()
+
+    def _validate_quantities(self, stock_quantity, min_quantity):
+        if stock_quantity < 0:
+            raise ValueError('So luong ton kho khong duoc am')
+        if min_quantity < 0:
+            raise ValueError('So luong toi thieu khong duoc am')
 
 
 class RecipeService:
@@ -56,10 +73,10 @@ class RecipeService:
         for item in ingredients:
             ingredient = Ingredient.query.get(item.get('ingredient_id'))
             if not ingredient:
-                raise ValueError('Nguyên liệu không tồn tại')
+                raise ValueError('Nguyen lieu khong ton tai')
             quantity = float(item.get('quantity', 0))
             if quantity <= 0:
-                raise ValueError('Định lượng nguyên liệu phải lớn hơn 0')
+                raise ValueError('Dinh luong nguyen lieu phai lon hon 0')
             recipe_item = MenuItemIngredient(
                 menu_item_id=menu_item_id,
                 ingredient_id=ingredient.id,
@@ -75,9 +92,7 @@ class RecipeService:
         for recipe_item in menu_item.ingredients:
             required = recipe_item.quantity * quantity
             if recipe_item.ingredient.stock_quantity < required:
-                raise ValueError(
-                    f'Không đủ nguyên liệu {recipe_item.ingredient.name}'
-                )
+                raise ValueError(f'Khong du nguyen lieu {recipe_item.ingredient.name}')
 
         for recipe_item in menu_item.ingredients:
             recipe_item.ingredient.stock_quantity -= recipe_item.quantity * quantity

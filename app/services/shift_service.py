@@ -22,8 +22,10 @@ class ShiftService(ABCBaseService):
         db.session.commit()
         return shift
 
-    def check_out(self, shift_id):
+    def check_out(self, shift_id, actor=None):
         shift = self.get_by_id(shift_id)
+        if actor and actor.role.name != 'admin' and shift.user_id != actor.id:
+            raise ValueError('Khong the checkout ca lam cua nhan vien khac')
         if shift.end_time:
             raise ValueError('Ca làm đã kết thúc')
         shift.end_time = datetime.utcnow()

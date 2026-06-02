@@ -1,4 +1,4 @@
-from flask import Blueprint
+from flask import Blueprint, g
 from app.services import ShiftService
 from app.utils.auth import auth_required
 from app.utils.response import get_json_data, list_response, service_error_response, success_response
@@ -17,8 +17,11 @@ def get_shifts():
 @auth_required('admin', 'staff', 'cashier')
 def check_in():
     data = get_json_data()
+    user_id = data.get('user_id')
+    if g.current_user.role.name != 'admin':
+        user_id = g.current_user.id
     try:
-        shift = _svc.check_in(data.get('user_id'), data.get('note'))
+        shift = _svc.check_in(user_id, data.get('note'))
         return success_response('Check-in thành công', 201, shift=shift.to_dict())
     except ValueError as e:
         return service_error_response(e)
@@ -28,7 +31,7 @@ def check_in():
 @auth_required('admin', 'staff', 'cashier')
 def check_out(shift_id):
     try:
-        shift = _svc.check_out(shift_id)
+        shift = _svc.check_out(shift_id, actor=g.current_user)
         return success_response('Check-out thành công', shift=shift.to_dict())
     except ValueError as e:
         return service_error_response(e)

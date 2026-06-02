@@ -53,10 +53,10 @@ class SushiApiTestCase(unittest.TestCase):
             Customer(
                 full_name='Khách thành viên',
                 phone='0901000001',
-                note='Thành viên sinh nhật tháng 5',
+                note='Thành viên sinh nhật trong tháng hiện tại',
                 customer_type='thanh_vien',
                 member_tier='vip',
-                birth_date=date(1998, 5, 12),
+                birth_date=date(1998, now_utc().month, 12),
             ),
         ])
         db.session.commit()

@@ -26,13 +26,13 @@ from app.models import (
     os.environ.get('RUN_REAL_DB_TESTS') == '1',
     'Set RUN_REAL_DB_TESTS=1 to run tests against the real configured database.',
 )
-class RealDatabaseFlowTest(unittest.TestCase):
-    """Integration test dung database that trong config.py.
+class AllApiFlowTest(unittest.TestCase):
+    """Integration test duyet luong tong hop cua cac API voi database that.
 
     Test nay co ghi vao DB that, nen duoc skip mac dinh. Khi can chay:
 
         $env:RUN_REAL_DB_TESTS='1'
-        python -m unittest tests.test_real_database_flow -v
+        python -m unittest tests.test_all_api -v
     """
 
     def setUp(self):
@@ -132,7 +132,8 @@ class RealDatabaseFlowTest(unittest.TestCase):
         self.assertIsNotNone(order)
         self.assertEqual(order.status, 'da_thanh_toan')
         self.assertEqual(order.discount_amount, 9000)
-        self.assertEqual(order.total_amount, 81000)
+        self.assertEqual(order.total_amount, 90000)
+        self.assertEqual(order.final_amount, 81000)
         self.assertIsNotNone(payment)
         self.assertEqual(payment.amount, 81000)
         self.assertEqual(table.status, 'trong')

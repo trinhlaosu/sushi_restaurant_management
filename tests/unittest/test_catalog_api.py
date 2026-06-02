@@ -1,4 +1,4 @@
-from tests.base import ApiTestBase
+from tests.unittest.base import ApiTestBase
 
 
 class CategoryMenuApiTest(ApiTestBase):

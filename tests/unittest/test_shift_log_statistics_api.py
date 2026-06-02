@@ -1,4 +1,4 @@
-from tests.base import ApiTestBase
+from tests.unittest.base import ApiTestBase
 
 
 class ShiftLogStatisticsApiTest(ApiTestBase):
@@ -52,8 +52,9 @@ class ShiftLogStatisticsApiTest(ApiTestBase):
         self.assertEqual(response.get_json()['tong_doanh_thu'], 90000)
 
     def test_get_statistics_popular_items(self):
-        order = self.create_order(quantity=2)
-        self.pay_order(order['id'])
+        paid_order = self.create_order(quantity=2)
+        self.pay_order(paid_order['id'])
+        self.create_order(quantity=3)
 
         response = self.client.get('/api/statistics/popular-items?top=1', headers=self.login())
 

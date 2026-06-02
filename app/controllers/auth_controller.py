@@ -38,7 +38,7 @@ def login():
 
 
 @auth_bp.post('/logout')
-@auth_required('admin', 'staff')
+@auth_required('admin', 'staff', 'cashier')
 def logout():
     _svc.logout(g.access_token)
     return success_response('Đăng xuất thành công')

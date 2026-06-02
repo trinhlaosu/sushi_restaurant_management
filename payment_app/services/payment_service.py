@@ -18,11 +18,12 @@ class PaymentService:
     def thanh_toan(self, order_id, phuong_thuc='tien_mat'):
         order = self._order_service.get_by_id(order_id)
         self.__kiem_tra_chua_thanh_toan(order)
+        self.__kiem_tra_trang_thai_thanh_toan(order)
 
         payment = Payment(
             order_id=order.id,
             payment_method=phuong_thuc,
-            amount=order.total_amount
+            amount=order.final_amount or order.total_amount
         )
         db.session.add(payment)
 
@@ -34,6 +35,10 @@ class PaymentService:
     def __kiem_tra_chua_thanh_toan(self, order):
         if order.payment:
             raise ValueError('Đơn hàng này đã được thanh toán rồi')
+
+    def __kiem_tra_trang_thai_thanh_toan(self, order):
+        if order.status == 'da_huy':
+            raise ValueError('Khong the thanh toan don hang da huy')
 
     def __str__(self):
         return 'PaymentService()'

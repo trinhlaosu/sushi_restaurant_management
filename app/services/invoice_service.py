@@ -19,7 +19,7 @@ class InvoiceService:
             'subtotal': sum(detail.subtotal for detail in order.details),
             'discount_code': order.discount.code if order.discount else None,
             'discount_amount': order.discount_amount,
-            'total_amount': order.total_amount,
+            'total_amount': order.final_amount or order.total_amount,
             'payment': order.payment.to_dict(),
             'created_at': order.created_at.isoformat() if order.created_at else None,
         }
