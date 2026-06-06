@@ -1,41 +1,71 @@
 {
   "info": {
-    "name": "Nhom 07 - Sushi Restaurant API - Demo Scenario",
-    "description": "Collection demo cho Sushi Restaurant Management API. Chay python seed.py va python run.py truoc khi import/chay collection.",
+    "name": "Nhom 07 - Sushi Restaurant API",
+    "description": "kiểm thử các chức năng chính của Sushi Restaurant Management API.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {"key": "base_url", "value": "http://127.0.0.1:5000"},
-    {"key": "admin_token", "value": ""},
-    {"key": "staff_token", "value": ""},
-    {"key": "cashier_token", "value": ""},
-    {"key": "registered_user_id", "value": ""},
-    {"key": "created_category_id", "value": ""},
-    {"key": "created_menu_item_id", "value": ""},
-    {"key": "created_table_id", "value": ""},
-    {"key": "created_customer_id", "value": ""},
-    {"key": "order_id", "value": ""}
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5000"
+    },
+    {
+      "key": "admin_token",
+      "value": ""
+    },
+    {
+      "key": "staff_token",
+      "value": ""
+    },
+    {
+      "key": "cashier_token",
+      "value": ""
+    },
+    {
+      "key": "registered_user_id",
+      "value": ""
+    },
+    {
+      "key": "created_category_id",
+      "value": ""
+    },
+    {
+      "key": "created_menu_item_id",
+      "value": ""
+    },
+    {
+      "key": "created_table_id",
+      "value": ""
+    },
+    {
+      "key": "created_customer_id",
+      "value": ""
+    },
+    {
+      "key": "order_id",
+      "value": ""
+    }
   ],
   "item": [
     {
       "name": "00 - Public And Login",
       "item": [
         {
-          "name": "Health Check",
+          "name": "Kiểm tra server",
           "request": {
             "method": "GET",
             "url": "{{base_url}}/api/health"
           }
         },
         {
-          "name": "Register Demo Staff",
+          "name": "Đăng ký nhân viên Nguyễn Văn H",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Register demo staff OK', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Register staff OK', function () { pm.response.to.have.status(201); });",
                   "const json = pm.response.json();",
                   "if (json.user && json.user.id) pm.collectionVariables.set('registered_user_id', json.user.id);"
                 ]
@@ -44,16 +74,21 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"full_name\": \"Nhân viên demo {{$timestamp}}\",\n  \"username\": \"demo_staff_{{$timestamp}}\",\n  \"password\": \"demo123\"\n}"
+              "raw": "{\n  \"full_name\": \"Nguyễn Văn H\",\n  \"username\": \"h.vannguyen\",\n  \"password\": \"h123\"\n}"
             },
             "url": "{{base_url}}/api/auth/register"
           }
         },
         {
-          "name": "Login Admin",
+          "name": "Đăng nhập admin",
           "event": [
             {
               "listen": "test",
@@ -69,7 +104,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
@@ -78,7 +118,7 @@
           }
         },
         {
-          "name": "Login Staff",
+          "name": "Đăng nhập nhân viên phục vụ",
           "event": [
             {
               "listen": "test",
@@ -94,7 +134,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"username\": \"staff\",\n  \"password\": \"staff123\"\n}"
@@ -103,7 +148,7 @@
           }
         },
         {
-          "name": "Login Cashier",
+          "name": "Đăng nhập thu ngân",
           "event": [
             {
               "listen": "test",
@@ -119,7 +164,12 @@
           ],
           "request": {
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"username\": \"cashier\",\n  \"password\": \"cashier123\"\n}"
@@ -133,136 +183,312 @@
       "name": "01 - Admin Master Data",
       "item": [
         {
-          "name": "Get Users",
+          "name": "Xem danh sách tài khoản",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/users"
           }
         },
         {
-          "name": "Update Registered User Role",
+          "name": "Xác nhận quyền nhân viên",
           "request": {
             "method": "PUT",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"role\": \"staff\"\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"staff\"\n}"
+            },
             "url": "{{base_url}}/api/users/{{registered_user_id}}/role"
           }
         },
         {
-          "name": "Create Category",
+          "name": "Tạo danh mục set gia đình",
           "event": [
             {
               "listen": "test",
-              "script": {"type": "text/javascript", "exec": ["pm.test('Create category OK', function () { pm.response.to.have.status(201); });", "const json = pm.response.json();", "pm.collectionVariables.set('created_category_id', json.category.id);"]}
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create category OK', function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('created_category_id', json.category.id);"
+                ]
+              }
             }
           ],
           "request": {
             "method": "POST",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Set đặc biệt {{$timestamp}}\",\n  \"description\": \"Nhóm món set cao cấp dùng cho kịch bản Postman\"\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Set gia đình\",\n  \"description\": \"Các set sushi dành cho nhóm khách đi 3-4 người\"\n}"
+            },
             "url": "{{base_url}}/api/categories"
           }
         },
         {
-          "name": "Get Categories",
+          "name": "Xem danh sách danh mục",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/categories"
           }
         },
         {
-          "name": "Get Created Category Detail",
+          "name": "Xem chi tiết danh mục vừa tạo",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/categories/{{created_category_id}}"
           }
         },
         {
-          "name": "Update Created Category",
+          "name": "Cập nhật mô tả danh mục",
           "request": {
             "method": "PUT",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"description\": \"Set sushi cao cấp, dữ liệu demo cho bài thuyết trình\"\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Set sushi dùng cho nhóm khách gia đình, phục vụ kèm súp miso và đồ uống\"\n}"
+            },
             "url": "{{base_url}}/api/categories/{{created_category_id}}"
           }
         },
         {
-          "name": "Create Menu Item",
+          "name": "Tạo món set cá hồi gia đình",
           "event": [
             {
               "listen": "test",
-              "script": {"type": "text/javascript", "exec": ["pm.test('Create menu item OK', function () { pm.response.to.have.status(201); });", "const json = pm.response.json();", "pm.collectionVariables.set('created_menu_item_id', json.menu_item.id);"]}
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create menu item OK', function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('created_menu_item_id', json.menu_item.id);"
+                ]
+              }
             }
           ],
           "request": {
             "method": "POST",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Set Nigiri cá hồi {{$timestamp}}\",\n  \"description\": \"Set 6 miếng nigiri cá hồi, đơn vị tiền VND\",\n  \"price\": 180000,\n  \"category_id\": {{created_category_id}}\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Set cá hồi gia đình\",\n  \"description\": \"6 miếng nigiri cá hồi, 1 phần maki cá hồi, kèm súp miso\",\n  \"price\": 180000,\n  \"category_id\": {{created_category_id}}\n}"
+            },
             "url": "{{base_url}}/api/menu-items"
           }
         },
         {
-          "name": "Get Menu Items Public",
+          "name": "Xem menu công khai",
           "request": {
             "method": "GET",
             "url": "{{base_url}}/api/menu-items"
           }
         },
         {
-          "name": "Get Created Menu Item Detail",
+          "name": "Xem chi tiết món vừa tạo",
           "request": {
             "method": "GET",
             "url": "{{base_url}}/api/menu-items/{{created_menu_item_id}}"
           }
         },
         {
-          "name": "Update Created Menu Item",
+          "name": "Cập nhật giá món",
           "request": {
             "method": "PUT",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"price\": 195000,\n  \"status\": \"con_mon\",\n  \"is_available\": true\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 195000,\n  \"status\": \"con_mon\",\n  \"is_available\": true\n}"
+            },
             "url": "{{base_url}}/api/menu-items/{{created_menu_item_id}}"
           }
         },
         {
-          "name": "Create Table",
+          "name": "Tạo bàn B11",
           "event": [
             {
               "listen": "test",
-              "script": {"type": "text/javascript", "exec": ["pm.test('Create table OK', function () { pm.response.to.have.status(201); });", "const json = pm.response.json();", "pm.collectionVariables.set('created_table_id', json.table.id);"]}
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create table OK', function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('created_table_id', json.table.id);"
+                ]
+              }
             }
           ],
           "request": {
             "method": "POST",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"table_number\": \"VIP-{{$timestamp}}\",\n  \"seats\": 4,\n  \"status\": \"trong\"\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"table_number\": \"B11\",\n  \"seats\": 4,\n  \"status\": \"trong\"\n}"
+            },
             "url": "{{base_url}}/api/tables"
           }
         },
         {
-          "name": "Get Tables",
+          "name": "Xem danh sách bàn",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/tables"
           }
         },
         {
-          "name": "Update Created Table",
+          "name": "Giữ bàn B11",
           "request": {
             "method": "PUT",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"status\": \"da_dat\"\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"da_dat\"\n}"
+            },
             "url": "{{base_url}}/api/tables/{{created_table_id}}"
           }
         }
@@ -272,78 +498,187 @@
       "name": "02 - Staff Customer And Order",
       "item": [
         {
-          "name": "Create Customer",
+          "name": "Tạo khách hàng Nguyễn Thị Anh",
           "event": [
             {
               "listen": "test",
-              "script": {"type": "text/javascript", "exec": ["pm.test('Create customer OK', function () { pm.response.to.have.status(201); });", "const json = pm.response.json();", "pm.collectionVariables.set('created_customer_id', json.customer.id);"]}
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create customer OK', function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('created_customer_id', json.customer.id);"
+                ]
+              }
             }
           ],
           "request": {
             "method": "POST",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"full_name\": \"Nguyễn Minh Anh {{$timestamp}}\",\n  \"phone\": \"09{{$timestamp}}\",\n  \"customer_type\": \"thanh_vien\",\n  \"member_tier\": \"vang\",\n  \"birth_date\": \"1998-05-12\",\n  \"note\": \"Khách đặt bàn VIP, dùng dữ liệu demo Postman\"\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Nguyễn Thị Anh\",\n  \"phone\": \"0902000011\",\n  \"customer_type\": \"thanh_vien\",\n  \"member_tier\": \"vang\",\n  \"birth_date\": \"1998-05-12\",\n  \"note\": \"Khách đi 4 người, ưu tiên bàn yên tĩnh\"\n}"
+            },
             "url": "{{base_url}}/api/customers"
           }
         },
         {
-          "name": "Get Customers",
+          "name": "Xem danh sách khách hàng",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/customers"
           }
         },
         {
-          "name": "Update Created Customer",
+          "name": "Cập nhật ghi chú khách hàng",
           "request": {
             "method": "PUT",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"note\": \"Khách thành viên hạng vàng, ưu tiên bàn VIP\"\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Khách thành viên hạng vàng, thường gọi các món cá hồi\"\n}"
+            },
             "url": "{{base_url}}/api/customers/{{created_customer_id}}"
           }
         },
         {
-          "name": "Create Order From Demo Data",
+          "name": "Tạo đơn cho bàn B11",
           "event": [
             {
               "listen": "test",
-              "script": {"type": "text/javascript", "exec": ["pm.test('Create order OK', function () { pm.response.to.have.status(201); });", "const json = pm.response.json();", "pm.collectionVariables.set('order_id', json.order.id);"]}
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Create order OK', function () { pm.response.to.have.status(201); });",
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('order_id', json.order.id);"
+                ]
+              }
             }
           ],
           "request": {
             "method": "POST",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"table_id\": {{created_table_id}},\n  \"customer_id\": {{created_customer_id}},\n  \"items\": [\n    {\"menu_item_id\": {{created_menu_item_id}}, \"quantity\": 2}\n  ]\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"table_id\": {{created_table_id}},\n  \"customer_id\": {{created_customer_id}},\n  \"items\": [\n    {\n      \"menu_item_id\": {{created_menu_item_id}},\n      \"quantity\": 2\n    }\n  ]\n}"
+            },
             "url": "{{base_url}}/api/orders"
           }
         },
         {
-          "name": "Get Orders",
+          "name": "Xem danh sách đơn",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/orders"
           }
         },
         {
-          "name": "Get Created Order Detail",
+          "name": "Xem chi tiết đơn",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/orders/{{order_id}}"
           }
         },
         {
-          "name": "Update Order Status To Served",
+          "name": "Cập nhật đơn đã phục vụ",
           "request": {
             "method": "PUT",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"status\": \"da_phuc_vu\"\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"da_phuc_vu\"\n}"
+            },
             "url": "{{base_url}}/api/orders/{{order_id}}/status"
           }
         }
@@ -353,28 +688,63 @@
       "name": "03 - Cashier Payment And Invoice",
       "item": [
         {
-          "name": "Create Payment",
+          "name": "Thanh toán đơn",
           "request": {
             "method": "POST",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{cashier_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"order_id\": {{order_id}},\n  \"payment_method\": \"tien_mat\"\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{cashier_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": {{order_id}},\n  \"payment_method\": \"tien_mat\"\n}"
+            },
             "url": "{{base_url}}/api/payments"
           }
         },
         {
-          "name": "Get Payments",
+          "name": "Xem lịch sử thanh toán",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{cashier_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{cashier_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/payments"
           }
         },
         {
-          "name": "Get Invoice",
+          "name": "Xem hóa đơn",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{cashier_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{cashier_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/invoices/{{order_id}}"
           }
         }
@@ -384,57 +754,111 @@
       "name": "04 - Admin Reports And Auth Guards",
       "item": [
         {
-          "name": "Statistics Overview",
+          "name": "Xem thống kê tổng quan",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/statistics"
           }
         },
         {
-          "name": "Revenue",
+          "name": "Xem doanh thu",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/statistics/revenue"
           }
         },
         {
-          "name": "Popular Items",
+          "name": "Xem món bán chạy",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/statistics/popular-items?top=5"
           }
         },
         {
-          "name": "Revenue By Day",
+          "name": "Xem doanh thu theo ngày",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/statistics/by-day"
           }
         },
         {
-          "name": "Revenue By Staff",
+          "name": "Xem doanh thu theo nhân viên",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/statistics/by-staff"
           }
         },
         {
-          "name": "Guard - Missing Token Should Be 401",
+          "name": "Kiểm tra thiếu token trả 401",
           "request": {
             "method": "GET",
             "url": "{{base_url}}/api/users"
           }
         },
         {
-          "name": "Guard - Staff Access Users Should Be 403",
+          "name": "Kiểm tra staff không được xem user",
           "request": {
             "method": "GET",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/users"
           }
         }
@@ -444,36 +868,80 @@
       "name": "05 - Cleanup",
       "item": [
         {
-          "name": "Delete Created Menu Item",
+          "name": "Ẩn món vừa tạo",
           "request": {
             "method": "DELETE",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/menu-items/{{created_menu_item_id}}"
           }
         },
         {
-          "name": "Release Created Table",
+          "name": "Trả bàn B11 về trạng thái trống",
           "request": {
             "method": "PUT",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
-            "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"status\": \"trong\"\n}"},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{staff_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"trong\"\n}"
+            },
             "url": "{{base_url}}/api/tables/{{created_table_id}}"
           }
         },
         {
-          "name": "Logout Admin",
+          "name": "Đăng xuất admin",
           "request": {
             "method": "POST",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/auth/logout"
           }
         },
         {
-          "name": "Logout Cashier",
+          "name": "Đăng xuất thu ngân",
           "request": {
             "method": "POST",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{cashier_token}}", "type": "string"}]},
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{cashier_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "url": "{{base_url}}/api/auth/logout"
           }
         }
