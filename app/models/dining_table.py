@@ -19,7 +19,7 @@ class DiningTable(db.Model):
 
     orders = db.relationship('Order', back_populates='table')
 
-    def release_if_reservation_expired(self):
+    def release_if_hold_expired(self):
         if self.status == 'da_dat' and self.reserved_until and self.reserved_until <= now_utc():
             self.status = 'trong'
             self.reserved_at = None

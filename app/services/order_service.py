@@ -14,11 +14,11 @@ class OrderService(ABCWritableService):
         pass
 
     def get_all(self):
-        self.__giai_phong_ban_dat_qua_han()
+        self.__giai_phong_ban_giu_qua_han()
         return Order.query.order_by(Order.id.desc()).all()
 
     def get_by_id(self, record_id):
-        self.__giai_phong_ban_dat_qua_han()
+        self.__giai_phong_ban_giu_qua_han()
         return db.get_or_404(Order, record_id)
 
     def create(self, data):
@@ -31,7 +31,7 @@ class OrderService(ABCWritableService):
             if not items:
                 raise ValueError('Don hang phai co it nhat mot mon')
 
-            self.__giai_phong_ban_dat_qua_han()
+            self.__giai_phong_ban_giu_qua_han()
             ban = db.session.get(DiningTable, table_id)
             if not ban:
                 raise ValueError('Ban khong ton tai')
@@ -122,7 +122,7 @@ class OrderService(ABCWritableService):
 
         return tong_tien
 
-    def __giai_phong_ban_dat_qua_han(self):
+    def __giai_phong_ban_giu_qua_han(self):
         ban_qua_han = DiningTable.query.filter(
             DiningTable.status == 'da_dat',
             DiningTable.reserved_until.isnot(None),

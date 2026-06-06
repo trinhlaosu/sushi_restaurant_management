@@ -46,23 +46,23 @@ Chay folder theo thu tu tu tren xuong duoi.
 ### 01 - Admin Master Data
 
 - Admin xem danh sach user va cap nhat role user demo.
-- Admin tao category demo.
+- Admin tao category demo `Set đặc biệt`.
 - Staff xem danh sach/chi tiet category.
 - Admin cap nhat category demo.
-- Admin tao menu item demo.
+- Admin tao menu item demo `Set Nigiri cá hồi`.
 - Public xem danh sach/chi tiet menu item.
 - Admin cap nhat menu item demo.
-- Admin tao ban demo.
+- Admin tao ban demo `VIP-<timestamp>`.
 - Staff xem va cap nhat ban demo sang `da_dat`.
 
 ### 02 - Staff Customer And Order
 
-- Staff tao customer demo.
+- Staff tao customer demo `Nguyễn Minh Anh <timestamp>`.
 - Staff xem/cap nhat customer.
-- Staff tao order bang du lieu seed on dinh:
-  - `table_id = 1`
-  - `customer_id = 1`
-  - `menu_item_id = 1`
+- Staff tao order bang chinh du lieu vua tao:
+  - `created_table_id`
+  - `created_customer_id`
+  - `created_menu_item_id`
 - Staff xem danh sach order, chi tiet order.
 - Staff cap nhat trang thai order sang `da_phuc_vu`.
 
@@ -87,16 +87,13 @@ Chay folder theo thu tu tu tren xuong duoi.
 ### 05 - Cleanup
 
 - Admin an menu item demo.
-- Admin xoa category demo.
-- Admin xoa customer demo.
 - Staff dua ban demo ve `trong`.
-- Admin xoa ban demo.
 - Logout admin va cashier.
 
 ## 3. Luu y khi demo
 
 - Nen chay `python seed.py` truoc moi lan demo de DB ve trang thai sach.
 - Collection dung `{{$timestamp}}` khi tao category, menu item, table, customer de tranh trung du lieu.
-- Order/payment dung du lieu seed co san de luong demo on dinh.
+- Order/payment dung chinh du lieu demo vua tao de luong thuyet trinh tu nhien hon.
 - Neu chay rieng tung request, can chay cac request login truoc de co token.
-- Cleanup khong xoa order/payment va user dang ky demo vi API hien tai khong co endpoint xoa cac du lieu nay; chay lai `python seed.py` neu can dua DB ve trang thai sach hoan toan.
+- Cleanup khong xoa order/payment, category, customer, table va user dang ky demo vi cac du lieu nay da nam trong lich su order; chay lai `python seed.py` neu can dua DB ve trang thai sach hoan toan.

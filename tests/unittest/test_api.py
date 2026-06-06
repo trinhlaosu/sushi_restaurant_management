@@ -166,7 +166,7 @@ class SushiApiTestCase(unittest.TestCase):
         self.assertIsNotNone(table['reserved_at'])
         self.assertIsNotNone(table['reserved_until'])
 
-    def test_expired_reservation_returns_table_to_available(self):
+    def test_expired_table_hold_returns_table_to_available(self):
         headers = self._login('staff', 'staff123')
         table = db.session.get(DiningTable, 1)
         table.status = 'da_dat'

@@ -6,18 +6,18 @@ from app.models.dining_table import TABLE_STATUSES, now_utc
 from app.services.base_service import ABCWritableService
 
 
-RESERVATION_MINUTES = 15
+TABLE_HOLD_MINUTES = 15
 
 
 class TableService(ABCWritableService):
     """Xu ly ban an."""
 
     def get_all(self):
-        self.release_expired_reservations()
+        self.release_expired_holds()
         return DiningTable.query.order_by(DiningTable.id).all()
 
     def get_by_id(self, record_id):
-        self.release_expired_reservations()
+        self.release_expired_holds()
         return db.get_or_404(DiningTable, record_id)
 
     def create(self, data):
@@ -62,7 +62,7 @@ class TableService(ABCWritableService):
         db.session.delete(table)
         db.session.commit()
 
-    def release_expired_reservations(self):
+    def release_expired_holds(self):
         expired_tables = DiningTable.query.filter(
             DiningTable.status == 'da_dat',
             DiningTable.reserved_until.isnot(None),
@@ -82,7 +82,7 @@ class TableService(ABCWritableService):
         table.status = status
         if status == 'da_dat':
             table.reserved_at = now_utc()
-            table.reserved_until = table.reserved_at + timedelta(minutes=RESERVATION_MINUTES)
+            table.reserved_until = table.reserved_at + timedelta(minutes=TABLE_HOLD_MINUTES)
         elif status in ('trong', 'dang_phuc_vu'):
             table.reserved_at = None
             table.reserved_until = None

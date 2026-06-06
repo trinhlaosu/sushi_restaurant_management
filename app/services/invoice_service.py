@@ -17,7 +17,6 @@ class InvoiceService:
             'customer': order.customer.to_dict() if order.customer else None,
             'items': [detail.to_dict() for detail in order.details],
             'subtotal': sum(detail.subtotal for detail in order.details),
-            'discount_amount': order.discount_amount,
             'total_amount': order.final_amount or order.total_amount,
             'payment': order.payment.to_dict(),
             'created_at': order.created_at.isoformat() if order.created_at else None,

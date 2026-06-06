@@ -14,11 +14,7 @@
     {"key": "created_menu_item_id", "value": ""},
     {"key": "created_table_id", "value": ""},
     {"key": "created_customer_id", "value": ""},
-    {"key": "order_id", "value": ""},
-    {"key": "seed_category_id", "value": "1"},
-    {"key": "seed_menu_item_id", "value": "1"},
-    {"key": "seed_table_id", "value": "1"},
-    {"key": "seed_customer_id", "value": "1"}
+    {"key": "order_id", "value": ""}
   ],
   "item": [
     {
@@ -39,9 +35,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Register returns 201 or duplicate/business error', function () {",
-                  "  pm.expect([201, 400, 500]).to.include(pm.response.code);",
-                  "});",
+                  "pm.test('Register demo staff OK', function () { pm.response.to.have.status(201); });",
                   "const json = pm.response.json();",
                   "if (json.user && json.user.id) pm.collectionVariables.set('registered_user_id', json.user.id);"
                 ]
@@ -53,7 +47,7 @@
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"full_name\": \"Demo Staff {{$timestamp}}\",\n  \"username\": \"demo_staff_{{$timestamp}}\",\n  \"password\": \"demo123\"\n}"
+              "raw": "{\n  \"full_name\": \"Nhân viên demo {{$timestamp}}\",\n  \"username\": \"demo_staff_{{$timestamp}}\",\n  \"password\": \"demo123\"\n}"
             },
             "url": "{{base_url}}/api/auth/register"
           }
@@ -168,7 +162,7 @@
             "method": "POST",
             "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
             "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Demo Category {{$timestamp}}\",\n  \"description\": \"Created from Postman scenario\"\n}"},
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Set đặc biệt {{$timestamp}}\",\n  \"description\": \"Nhóm món set cao cấp dùng cho kịch bản Postman\"\n}"},
             "url": "{{base_url}}/api/categories"
           }
         },
@@ -194,7 +188,7 @@
             "method": "PUT",
             "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
             "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"description\": \"Updated from Postman scenario\"\n}"},
+            "body": {"mode": "raw", "raw": "{\n  \"description\": \"Set sushi cao cấp, dữ liệu demo cho bài thuyết trình\"\n}"},
             "url": "{{base_url}}/api/categories/{{created_category_id}}"
           }
         },
@@ -210,7 +204,7 @@
             "method": "POST",
             "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
             "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Demo Nigiri {{$timestamp}}\",\n  \"description\": \"Created from Postman scenario\",\n  \"price\": 42000,\n  \"category_id\": {{seed_category_id}}\n}"},
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Set Nigiri cá hồi {{$timestamp}}\",\n  \"description\": \"Set 6 miếng nigiri cá hồi, đơn vị tiền VND\",\n  \"price\": 180000,\n  \"category_id\": {{created_category_id}}\n}"},
             "url": "{{base_url}}/api/menu-items"
           }
         },
@@ -234,7 +228,7 @@
             "method": "PUT",
             "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
             "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"price\": 50000,\n  \"status\": \"con_mon\",\n  \"is_available\": true\n}"},
+            "body": {"mode": "raw", "raw": "{\n  \"price\": 195000,\n  \"status\": \"con_mon\",\n  \"is_available\": true\n}"},
             "url": "{{base_url}}/api/menu-items/{{created_menu_item_id}}"
           }
         },
@@ -250,7 +244,7 @@
             "method": "POST",
             "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
             "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"table_number\": \"P{{$timestamp}}\",\n  \"seats\": 4,\n  \"status\": \"trong\"\n}"},
+            "body": {"mode": "raw", "raw": "{\n  \"table_number\": \"VIP-{{$timestamp}}\",\n  \"seats\": 4,\n  \"status\": \"trong\"\n}"},
             "url": "{{base_url}}/api/tables"
           }
         },
@@ -289,7 +283,7 @@
             "method": "POST",
             "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
             "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"full_name\": \"Demo Customer {{$timestamp}}\",\n  \"phone\": \"09{{$timestamp}}\",\n  \"customer_type\": \"thanh_vien\",\n  \"member_tier\": \"vang\",\n  \"birth_date\": \"1998-05-12\",\n  \"note\": \"Created from Postman scenario\"\n}"},
+            "body": {"mode": "raw", "raw": "{\n  \"full_name\": \"Nguyễn Minh Anh {{$timestamp}}\",\n  \"phone\": \"09{{$timestamp}}\",\n  \"customer_type\": \"thanh_vien\",\n  \"member_tier\": \"vang\",\n  \"birth_date\": \"1998-05-12\",\n  \"note\": \"Khách đặt bàn VIP, dùng dữ liệu demo Postman\"\n}"},
             "url": "{{base_url}}/api/customers"
           }
         },
@@ -307,12 +301,12 @@
             "method": "PUT",
             "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
             "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"note\": \"Updated from Postman scenario\"\n}"},
+            "body": {"mode": "raw", "raw": "{\n  \"note\": \"Khách thành viên hạng vàng, ưu tiên bàn VIP\"\n}"},
             "url": "{{base_url}}/api/customers/{{created_customer_id}}"
           }
         },
         {
-          "name": "Create Order From Seed Data",
+          "name": "Create Order From Demo Data",
           "event": [
             {
               "listen": "test",
@@ -323,7 +317,7 @@
             "method": "POST",
             "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
             "header": [{"key": "Content-Type", "value": "application/json"}],
-            "body": {"mode": "raw", "raw": "{\n  \"table_id\": {{seed_table_id}},\n  \"customer_id\": {{seed_customer_id}},\n  \"items\": [\n    {\"menu_item_id\": {{seed_menu_item_id}}, \"quantity\": 2}\n  ]\n}"},
+            "body": {"mode": "raw", "raw": "{\n  \"table_id\": {{created_table_id}},\n  \"customer_id\": {{created_customer_id}},\n  \"items\": [\n    {\"menu_item_id\": {{created_menu_item_id}}, \"quantity\": 2}\n  ]\n}"},
             "url": "{{base_url}}/api/orders"
           }
         },
@@ -458,36 +452,12 @@
           }
         },
         {
-          "name": "Delete Created Category",
-          "request": {
-            "method": "DELETE",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
-            "url": "{{base_url}}/api/categories/{{created_category_id}}"
-          }
-        },
-        {
-          "name": "Delete Created Customer",
-          "request": {
-            "method": "DELETE",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
-            "url": "{{base_url}}/api/customers/{{created_customer_id}}"
-          }
-        },
-        {
           "name": "Release Created Table",
           "request": {
             "method": "PUT",
             "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
             "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {"mode": "raw", "raw": "{\n  \"status\": \"trong\"\n}"},
-            "url": "{{base_url}}/api/tables/{{created_table_id}}"
-          }
-        },
-        {
-          "name": "Delete Created Table",
-          "request": {
-            "method": "DELETE",
-            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
             "url": "{{base_url}}/api/tables/{{created_table_id}}"
           }
         },
