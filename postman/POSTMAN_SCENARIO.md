@@ -1,0 +1,102 @@
+# Postman Demo Scenario
+
+Tai lieu nay mo ta cach chay collection Postman chinh:
+
+```text
+postman/Nhom07_Sushi_API.postman_collection.json
+```
+
+## 1. Chuan bi
+
+Tai terminal project:
+
+```powershell
+python seed.py
+python run.py
+```
+
+Server mac dinh:
+
+```text
+http://127.0.0.1:5000
+```
+
+Tai khoan seed:
+
+| Role | Username | Password |
+|---|---|---|
+| Admin | `admin` | `admin123` |
+| Staff | `staff` | `staff123` |
+| Cashier | `cashier` | `cashier123` |
+
+## 2. Thu tu folder trong collection
+
+Chay folder theo thu tu tu tren xuong duoi.
+
+### 00 - Public And Login
+
+- Kiem tra server bang `GET /api/health`.
+- Dang ky mot user demo.
+- Dang nhap `admin`, `staff`, `cashier`.
+- Token duoc Postman script luu vao collection variables:
+  - `admin_token`
+  - `staff_token`
+  - `cashier_token`
+
+### 01 - Admin Master Data
+
+- Admin xem danh sach user va cap nhat role user demo.
+- Admin tao category demo.
+- Staff xem danh sach/chi tiet category.
+- Admin cap nhat category demo.
+- Admin tao menu item demo.
+- Public xem danh sach/chi tiet menu item.
+- Admin cap nhat menu item demo.
+- Admin tao ban demo.
+- Staff xem va cap nhat ban demo sang `da_dat`.
+
+### 02 - Staff Customer And Order
+
+- Staff tao customer demo.
+- Staff xem/cap nhat customer.
+- Staff tao order bang du lieu seed on dinh:
+  - `table_id = 1`
+  - `customer_id = 1`
+  - `menu_item_id = 1`
+- Staff xem danh sach order, chi tiet order.
+- Staff cap nhat trang thai order sang `da_phuc_vu`.
+
+### 03 - Cashier Payment And Invoice
+
+- Cashier thanh toan order vua tao.
+- Cashier xem lich su thanh toan.
+- Cashier xem hoa don chi tiet.
+
+### 04 - Admin Reports And Auth Guards
+
+- Admin xem cac API thong ke:
+  - tong quan
+  - doanh thu
+  - mon ban chay
+  - doanh thu theo ngay
+  - doanh thu theo nhan vien
+- Kiem tra phan quyen:
+  - thieu token goi `/api/users` phai bi `401`
+  - staff goi `/api/users` phai bi `403`
+
+### 05 - Cleanup
+
+- Admin an menu item demo.
+- Admin xoa category demo.
+- Admin xoa customer demo.
+- Staff dua ban demo ve `trong`.
+- Admin xoa ban demo.
+- Logout admin va cashier.
+
+## 3. Luu y khi demo
+
+- Nen chay `python seed.py` truoc moi lan demo de DB ve trang thai sach.
+- Collection dung `{{$timestamp}}` khi tao category, menu item, table, customer de tranh trung du lieu.
+- Order/payment dung du lieu seed co san de luong demo on dinh.
+- Neu chay rieng tung request, can chay cac request login truoc de co token.
+- Cleanup khong xoa order/payment va user dang ky demo vi API hien tai khong co endpoint xoa cac du lieu nay; chay lai `python seed.py` neu can dua DB ve trang thai sach hoan toan.
