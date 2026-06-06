@@ -13,7 +13,7 @@ class PaymentService:
         return Payment.query.order_by(Payment.id.desc()).all()
 
     def get_by_id(self, record_id):
-        return Payment.query.get_or_404(record_id)
+        return db.get_or_404(Payment, record_id)
 
     def thanh_toan(self, order_id, phuong_thuc='tien_mat'):
         order = self._order_service.get_by_id(order_id)

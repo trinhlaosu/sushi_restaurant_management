@@ -5,19 +5,13 @@ from uuid import uuid4
 from app import create_app
 from app.extensions import db
 from app.models import (
-    ActivityLog,
     Category,
     Customer,
     DiningTable,
-    Discount,
-    Ingredient,
     MenuItem,
-    MenuItemIngredient,
     Order,
     Payment,
-    Reservation,
     Role,
-    Shift,
     User,
 )
 
@@ -45,14 +39,8 @@ class AllApiFlowTest(unittest.TestCase):
         db.create_all()
         self.suffix = uuid4().hex[:8]
         self.created = {
-            'activity_logs': [],
             'payments': [],
             'orders': [],
-            'shifts': [],
-            'reservations': [],
-            'menu_item_ingredients': [],
-            'ingredients': [],
-            'discounts': [],
             'menu_items': [],
             'customers': [],
             'tables': [],
@@ -72,7 +60,6 @@ class AllApiFlowTest(unittest.TestCase):
         order_response = self.client.post('/api/orders', headers=staff_headers, json={
             'table_id': self.table.id,
             'customer_id': self.customer.id,
-            'discount_code': self.discount.code,
             'items': [
                 {'menu_item_id': self.menu_item.id, 'quantity': 2},
             ],
@@ -89,60 +76,23 @@ class AllApiFlowTest(unittest.TestCase):
         payment_id = payment_response.get_json()['payment']['id']
         self.created['payments'].append(payment_id)
 
-        reservation_response = self.client.post('/api/reservations', headers=staff_headers, json={
-            'table_id': self.table.id,
-            'customer_id': self.customer.id,
-            'reservation_time': '2035-01-01T18:00:00',
-            'guest_count': 2,
-            'note': f'real-db-{self.suffix}',
-        })
-        self.assertEqual(reservation_response.status_code, 201)
-        reservation_id = reservation_response.get_json()['reservation']['id']
-        self.created['reservations'].append(reservation_id)
-
-        shift_response = self.client.post('/api/shifts/check-in', headers=staff_headers, json={
-            'user_id': self.staff.id,
-            'note': f'real-db-{self.suffix}',
-        })
-        self.assertEqual(shift_response.status_code, 201)
-        shift_id = shift_response.get_json()['shift']['id']
-        self.created['shifts'].append(shift_id)
-        checkout_response = self.client.post(f'/api/shifts/{shift_id}/check-out', headers=staff_headers)
-        self.assertEqual(checkout_response.status_code, 200)
-
         invoice_response = self.client.get(f'/api/invoices/{order_id}', headers=staff_headers)
         self.assertEqual(invoice_response.status_code, 200)
-        self.assertEqual(invoice_response.get_json()['total_amount'], 81000)
+        self.assertEqual(invoice_response.get_json()['total_amount'], 90000)
 
         db.session.expire_all()
 
         order = db.session.get(Order, order_id)
         payment = db.session.get(Payment, payment_id)
         table = db.session.get(DiningTable, self.table.id)
-        ingredient = db.session.get(Ingredient, self.ingredient.id)
-        discount = db.session.get(Discount, self.discount.id)
-        reservation = db.session.get(Reservation, reservation_id)
-        shift = db.session.get(Shift, shift_id)
-        activity_log = ActivityLog.query.filter_by(
-            action='create_payment',
-            target_type='payment',
-            target_id=payment_id,
-        ).first()
 
         self.assertIsNotNone(order)
         self.assertEqual(order.status, 'da_thanh_toan')
-        self.assertEqual(order.discount_amount, 9000)
         self.assertEqual(order.total_amount, 90000)
-        self.assertEqual(order.final_amount, 81000)
+        self.assertEqual(order.final_amount, 90000)
         self.assertIsNotNone(payment)
-        self.assertEqual(payment.amount, 81000)
+        self.assertEqual(payment.amount, 90000)
         self.assertEqual(table.status, 'trong')
-        self.assertEqual(ingredient.stock_quantity, 80.0)
-        self.assertEqual(discount.used_count, 1)
-        self.assertEqual(reservation.status, 'cho_xac_nhan')
-        self.assertIsNotNone(shift.end_time)
-        self.assertIsNotNone(activity_log)
-        self.created['activity_logs'].append(activity_log.id)
 
     def _seed_minimum_data(self):
         admin_role = self._get_or_create_role('admin', 'Admin')
@@ -198,35 +148,6 @@ class AllApiFlowTest(unittest.TestCase):
         db.session.flush()
         self.created['customers'].append(self.customer.id)
 
-        self.ingredient = Ingredient(
-            name=f'Real Ingredient {self.suffix}',
-            unit='gram',
-            stock_quantity=100,
-            min_quantity=10,
-        )
-        db.session.add(self.ingredient)
-        db.session.flush()
-        self.created['ingredients'].append(self.ingredient.id)
-
-        recipe = MenuItemIngredient(
-            menu_item_id=self.menu_item.id,
-            ingredient_id=self.ingredient.id,
-            quantity=10,
-        )
-        db.session.add(recipe)
-        db.session.flush()
-        self.created['menu_item_ingredients'].append(recipe.id)
-
-        self.discount = Discount(
-            code=f'REAL{self.suffix}'.upper(),
-            discount_type='percent',
-            value=10,
-            usage_limit=1,
-        )
-        db.session.add(self.discount)
-        db.session.flush()
-        self.created['discounts'].append(self.discount.id)
-
         db.session.commit()
 
     def _get_or_create_role(self, name, description):
@@ -248,14 +169,8 @@ class AllApiFlowTest(unittest.TestCase):
 
     def _cleanup_created_data(self):
         delete_order = [
-            (ActivityLog, 'activity_logs'),
             (Payment, 'payments'),
             (Order, 'orders'),
-            (Shift, 'shifts'),
-            (Reservation, 'reservations'),
-            (MenuItemIngredient, 'menu_item_ingredients'),
-            (Ingredient, 'ingredients'),
-            (Discount, 'discounts'),
             (MenuItem, 'menu_items'),
             (Customer, 'customers'),
             (DiningTable, 'tables'),

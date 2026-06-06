@@ -1,21 +1,21 @@
 # Sushi Restaurant Management API
 
-Backend API quản lý nhà hàng sushi, xây dựng bằng Flask. Project tập trung vào
-phần API, không làm giao diện frontend. API có thể kiểm thử bằng Postman hoặc
-unit test trong thư mục `tests/`.
+Backend REST API quan ly nha hang sushi, xay dung bang Python Flask. Project tap
+trung vao API/server, khong co frontend, phu hop Chu de 2 cua do an.
 
-## 1. Thông Tin Chung
+## 1. Thong tin chung
 
-- Nhóm thực hiện: Nhóm 07
-- Ngôn ngữ: Python
+- Nhom thuc hien: Nhom 07
+- Ngon ngu: Python
 - Framework: Flask
 - ORM: Flask-SQLAlchemy
-- Database mặc định: SQLite
-- Kiểm thử: `unittest`, Postman
+- Database mac dinh: SQLite
+- Kiem thu: `unittest`, Postman
+- Don vi tien te: VND
 
-## 2. Kiến Trúc Source
+## 2. Kien truc source
 
-Project tổ chức theo MVC kết hợp service layer:
+Project to chuc theo MVC ket hop service layer:
 
 ```text
 sushi_restaurant_management/
@@ -24,139 +24,68 @@ sushi_restaurant_management/
 |   |-- models/             # Model SQLAlchemy
 |   |-- services/           # Business logic/service layer
 |   |-- utils/              # Auth, response helper
-|   |-- extensions.py       # Khởi tạo SQLAlchemy
-|   `-- __init__.py         # Tạo Flask app, register blueprint
-|-- payment_app/            # App/module riêng cho thanh toán
-|   |-- controllers/
-|   `-- services/
-|-- database/               # SQLite database
-|-- docs/                   # Tài liệu, mô tả kiến trúc
+|   |-- extensions.py       # Khoi tao SQLAlchemy
+|   `-- __init__.py         # Tao Flask app, register blueprint
+|-- payment_app/            # Module rieng cho thanh toan
+|-- database/               # SQLite database va schema tom tat
+|-- docs/                   # Tai lieu source/API
 |-- postman/                # Postman collection
-|-- tests/
-|   |-- test_all_api.py     # Integration test duyet luong tong hop voi database that
-|   `-- unittest/           # Unit test API
+|-- tests/                  # Unit test va integration test tuy chon
 |-- config.py
 |-- run.py
 |-- seed.py
 `-- requirements.txt
 ```
 
-Chi tiết kiến trúc nằm ở:
+Chi tiet kien truc: `docs/Source_Architecture.md`.
 
-```text
-docs/SOURCE_ARCHITECTURE.md
-```
+## 3. Diem dap ung yeu cau Chu de 2
 
-## 3. Điểm Đáp Ứng Yêu Cầu Đồ Án
+- Co REST API backend, khong yeu cau giao dien frontend.
+- Co CSDL SQLite voi 10 bang chinh, dung gioi han 5-10 bang.
+- Co API dang ky, dang nhap, dang xuat va Bearer token.
+- Co toi thieu hai doi tuong nguoi dung: `admin`, `staff`, `cashier`; trong do `admin` la quan tri vien, `staff/cashier` la nguoi dung da dang ky theo vai tro nghiep vu.
+- Co REST API dung `GET`, `POST`, `PUT`, `DELETE`.
+- Co Postman collection de kiem thu API.
+- Co unit test tu dong cho cac nhom API chinh.
+- Ap dung OOP, MVC va service layer.
 
-- **OOP**: model là class kế thừa `db.Model`; service là class xử lý nghiệp vụ.
-- **MVC rõ ràng**:
-  - Model: `app/models/`
-  - Controller: `app/controllers/`, `payment_app/controllers/`
-  - Service: `app/services/`, `payment_app/services/`
-- **Service layer**: controller chỉ nhận request/trả response; nghiệp vụ nằm trong service.
-- **Module/app riêng**: `payment_app` là module riêng cho thanh toán.
-- **Module gọi module khác**:
-  - `PaymentService` gọi `OrderService`.
-  - `OrderService` gọi `DiscountService` và `RecipeService`.
-  - `InvoiceService` gọi `OrderService`.
-  - Payment controller gọi `ActivityLogService`.
-- **Unit test API**: `tests/test_api.py` cover các nhóm API chính.
+## 4. Chuc nang chinh
 
-## 4. Chức Năng Chính
+- Auth: dang ky, dang nhap, dang xuat.
+- User: xem danh sach user, cap nhat role.
+- Category: CRUD danh muc mon.
+- Menu Item: xem menu public, CRUD/an mon.
+- Table: quan ly ban va giu ban tam 15 phut.
+- Customer: quan ly khach hang.
+- Order: tao don goi mon, xem don, cap nhat trang thai.
+- Payment: thanh toan don va xem lich su thanh toan.
+- Invoice: xem hoa don chi tiet cho don da thanh toan.
+- Statistics: tong quan doanh thu, doanh thu theo ngay/nhan vien, mon ban chay.
 
-- Auth: đăng ký, đăng nhập, đăng xuất, token authentication.
-- Phân quyền: `admin`, `staff`, `cashier`.
-- Quản lý user, danh mục, món ăn, bàn, khách hàng.
-- Tạo đơn gọi món, tính tổng tiền, cập nhật trạng thái đơn.
-- Thanh toán trong module riêng `payment_app`.
-- Đặt bàn trước.
-- Mã giảm giá/voucher.
-- Quản lý nguyên liệu tồn kho.
-- Công thức món/định lượng nguyên liệu.
-- Trừ tồn kho khi tạo đơn.
-- Hóa đơn chi tiết.
-- Log hoạt động.
-- Quản lý ca làm việc.
-- Thống kê doanh thu, món bán chạy, doanh thu theo ngày và theo nhân viên.
-
-## 5. Cài Đặt
-
-Mở terminal tại thư mục project:
-
-```powershell
-cd E:\DA_Python\Nhom07_Code\sushi_restaurant_management
-```
-
-Tạo môi trường ảo:
+## 5. Cai dat
 
 ```powershell
 python -m venv venv
-```
-
-Kích hoạt môi trường ảo trên Windows PowerShell:
-
-```powershell
 .\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 ```
 
-Nếu dùng Command Prompt:
+Neu dung Command Prompt:
 
 ```bat
 venv\Scripts\activate
 ```
 
-Cài thư viện:
-
-```powershell
-pip install -r requirements.txt
-```
-
-## 6. Tạo Database Và Dữ Liệu Mẫu
-
-Chạy:
+## 6. Tao database va du lieu mau
 
 ```powershell
 python seed.py
 ```
 
-Lệnh này sẽ xóa database cũ, tạo lại toàn bộ bảng và thêm dữ liệu mẫu.
+Lenh nay xoa database cu, tao lai bang va them du lieu mau.
 
-Database mặc định:
-
-```text
-database/sushi_restaurant.db
-```
-
-## 7. Chạy Server
-
-```powershell
-python run.py
-```
-
-Server mặc định chạy tại:
-
-```text
-http://127.0.0.1:5000
-```
-
-Kiểm tra server:
-
-```http
-GET http://127.0.0.1:5000/api/health
-```
-
-Kết quả mong đợi:
-
-```json
-{
-  "message": "Sushi Restaurant API is running"
-}
-```
-
-## 8. Tài Khoản Mẫu
-
-Sau khi chạy `python seed.py`:
+Tai khoan mau:
 
 | Role | Username | Password |
 |---|---|---|
@@ -164,9 +93,27 @@ Sau khi chạy `python seed.py`:
 | Staff | `staff` | `staff123` |
 | Cashier | `cashier` | `cashier123` |
 
-## 9. Cách Gọi API Có Token
+## 7. Chay server
 
-Đăng nhập:
+```powershell
+python run.py
+```
+
+Server mac dinh:
+
+```text
+http://127.0.0.1:5000
+```
+
+Kiem tra:
+
+```http
+GET http://127.0.0.1:5000/api/health
+```
+
+## 8. Cach goi API co token
+
+Dang nhap:
 
 ```http
 POST /api/auth/login
@@ -181,51 +128,30 @@ Body:
 }
 ```
 
-Copy token trả về và thêm header:
+Them token vao header:
 
 ```text
 Authorization: Bearer <token>
 ```
 
-## 10. Chạy Unit Test
+## 9. Chay test
+
+Chay unit test:
 
 ```powershell
 python -m unittest discover -s tests/unittest -v
 ```
 
-Test hiện tại đã được tách theo nhóm API trong nhiều file:
+Ket qua kiem tra gan nhat: 42 test passed.
 
-```text
-tests/
-`-- unittest/
-    |-- base.py
-    |-- test_health_auth_user.py
-    |-- test_catalog_api.py
-    |-- test_people_table_api.py
-    |-- test_order_payment_api.py
-    |-- test_reservation_discount_inventory_api.py
-    `-- test_shift_log_statistics_api.py
-```
-
-Test all API voi database that duoc tach rieng ben ngoai folder unit test:
-
-```text
-tests/test_all_api.py
-```
-
-Mac dinh test nay bi skip de tranh ghi vao database that. Khi can chay:
+Integration test voi database that duoc skip mac dinh de tranh ghi vao DB dang dung:
 
 ```powershell
 $env:RUN_REAL_DB_TESTS='1'
 python -m unittest tests.test_all_api -v
 ```
 
-Bộ test có **56 test case**:
-
-- 54 test tương ứng 54 API endpoint.
-- 2 test bổ sung cho auth guard: thiếu token và sai quyền.
-
-## 11. Postman
+## 10. Postman
 
 Import collection:
 
@@ -233,213 +159,120 @@ Import collection:
 postman/Nhom07_Sushi_API.postman_collection.json
 ```
 
-Collection hiện được chia theo từng quyền người dùng:
+Thu tu demo de xuat:
 
-```text
-00 - Public
-01 - Admin Scenario
-02 - Staff Scenario
-03 - Cashier Scenario
-04 - Admin Reports And Cleanup
-```
+1. Health va Auth.
+2. Admin tao category, menu item, table.
+3. Staff tao customer va order.
+4. Cashier/Admin/Staff thanh toan order.
+5. Xem invoice va statistics.
 
-Trước khi chạy collection:
+## 11. Danh sach API thuc te
 
-```powershell
-python seed.py
-python run.py
-```
+Tong cong co 36 endpoint dang duoc register trong Flask app.
 
-Thứ tự chạy đề xuất trong Postman:
-
-1. Chạy folder `00 - Public` để kiểm tra server và API public.
-2. Chạy folder `01 - Admin Scenario` để login admin, tạo dữ liệu quản trị như danh mục, món, bàn, voucher, nguyên liệu.
-3. Chạy folder `02 - Staff Scenario` để login staff, tạo khách hàng, đặt bàn, check-in ca, tạo đơn gọi món.
-4. Chạy folder `03 - Cashier Scenario` để login cashier, thanh toán đơn và xem hóa đơn.
-5. Chạy folder `04 - Admin Reports And Cleanup` để xem báo cáo, activity log và logout các tài khoản.
-
-Collection tự lưu các biến như `admin_token`, `staff_token`, `cashier_token`,
-`created_customer_id`, `order_id`, `payment_id` sau các request tạo dữ liệu.
-
-## 12. Tổng Số Và Danh Sách API
-
-Tổng cộng project hiện có **54 API endpoint**:
-
-- 53 API thuộc các blueprint/module nghiệp vụ.
-- 1 API health check của Flask app chính.
-
-Thống kê theo nhóm:
-
-| Nhóm API | Số lượng |
+| Nhom | So API |
 |---|---:|
 | Health | 1 |
 | Auth | 3 |
 | User | 2 |
 | Category | 5 |
-| Menu Item | 7 |
+| Menu Item | 5 |
 | Table | 4 |
 | Customer | 4 |
 | Order | 4 |
 | Payment | 2 |
-| Reservation | 4 |
-| Discount | 4 |
-| Inventory | 4 |
 | Invoice | 1 |
-| Shift | 3 |
-| Activity Log | 1 |
 | Statistics | 5 |
-| **Tổng cộng** | **54** |
+| **Tong** | **36** |
 
 ### Health
 
-| Method | URL | Chức năng |
+| Method | URL | Chuc nang |
 |---|---|---|
-| GET | `/api/health` | Kiểm tra server đang chạy |
+| GET | `/api/health` | Kiem tra server |
 
 ### Auth
 
-| Method | URL | Chức năng |
+| Method | URL | Chuc nang |
 |---|---|---|
-| POST | `/api/auth/register` | Đăng ký tài khoản |
-| POST | `/api/auth/login` | Đăng nhập |
-| POST | `/api/auth/logout` | Đăng xuất |
+| POST | `/api/auth/register` | Dang ky |
+| POST | `/api/auth/login` | Dang nhap |
+| POST | `/api/auth/logout` | Dang xuat |
 
 ### User
 
-| Method | URL | Chức năng |
+| Method | URL | Chuc nang |
 |---|---|---|
-| GET | `/api/users` | Xem danh sách người dùng |
-| PUT | `/api/users/<id>/role` | Cập nhật role |
+| GET | `/api/users` | Danh sach user |
+| PUT | `/api/users/<id>/role` | Cap nhat role |
 
 ### Category
 
-| Method | URL | Chức năng |
+| Method | URL | Chuc nang |
 |---|---|---|
-| GET | `/api/categories` | Danh sách danh mục |
-| GET | `/api/categories/<id>` | Chi tiết danh mục |
-| POST | `/api/categories` | Thêm danh mục |
-| PUT | `/api/categories/<id>` | Cập nhật danh mục |
-| DELETE | `/api/categories/<id>` | Xóa danh mục |
+| GET | `/api/categories` | Danh sach danh muc |
+| GET | `/api/categories/<id>` | Chi tiet danh muc |
+| POST | `/api/categories` | Them danh muc |
+| PUT | `/api/categories/<id>` | Cap nhat danh muc |
+| DELETE | `/api/categories/<id>` | Xoa danh muc |
 
 ### Menu Item
 
-| Method | URL | Chức năng |
+| Method | URL | Chuc nang |
 |---|---|---|
-| GET | `/api/menu-items` | Danh sách món |
-| GET | `/api/menu-items/<id>` | Chi tiết món |
-| POST | `/api/menu-items` | Thêm món |
-| PUT | `/api/menu-items/<id>` | Cập nhật món |
-| DELETE | `/api/menu-items/<id>` | Ẩn món khỏi menu |
-| GET | `/api/menu-items/<id>/ingredients` | Xem công thức món |
-| POST | `/api/menu-items/<id>/ingredients` | Cập nhật công thức món |
+| GET | `/api/menu-items` | Danh sach mon |
+| GET | `/api/menu-items/<id>` | Chi tiet mon |
+| POST | `/api/menu-items` | Them mon |
+| PUT | `/api/menu-items/<id>` | Cap nhat mon |
+| DELETE | `/api/menu-items/<id>` | An mon khoi menu |
 
 ### Table
 
-| Method | URL | Chức năng |
+| Method | URL | Chuc nang |
 |---|---|---|
-| GET | `/api/tables` | Danh sách bàn |
-| POST | `/api/tables` | Thêm bàn |
-| PUT | `/api/tables/<id>` | Cập nhật bàn |
-| DELETE | `/api/tables/<id>` | Xóa bàn |
+| GET | `/api/tables` | Danh sach ban |
+| POST | `/api/tables` | Them ban |
+| PUT | `/api/tables/<id>` | Cap nhat ban |
+| DELETE | `/api/tables/<id>` | Xoa ban |
 
 ### Customer
 
-| Method | URL | Chức năng |
+| Method | URL | Chuc nang |
 |---|---|---|
-| GET | `/api/customers` | Danh sách khách hàng |
-| POST | `/api/customers` | Thêm khách hàng |
-| PUT | `/api/customers/<id>` | Cập nhật khách hàng |
-| DELETE | `/api/customers/<id>` | Xóa khách hàng |
+| GET | `/api/customers` | Danh sach khach hang |
+| POST | `/api/customers` | Them khach hang |
+| PUT | `/api/customers/<id>` | Cap nhat khach hang |
+| DELETE | `/api/customers/<id>` | Xoa khach hang |
 
 ### Order
 
-| Method | URL | Chức năng |
+| Method | URL | Chuc nang |
 |---|---|---|
-| GET | `/api/orders` | Danh sách đơn |
-| GET | `/api/orders/<id>` | Chi tiết đơn |
-| POST | `/api/orders` | Tạo đơn gọi món |
-| PUT | `/api/orders/<id>/status` | Cập nhật trạng thái đơn |
-
-Ví dụ tạo đơn:
-
-```json
-{
-  "table_id": 1,
-  "customer_id": 1,
-  "discount_code": "SALE10",
-  "items": [
-    {"menu_item_id": 1, "quantity": 2}
-  ]
-}
-```
+| GET | `/api/orders` | Danh sach don |
+| GET | `/api/orders/<id>` | Chi tiet don |
+| POST | `/api/orders` | Tao don goi mon |
+| PUT | `/api/orders/<id>/status` | Cap nhat trang thai don |
 
 ### Payment
 
-| Method | URL | Chức năng |
+| Method | URL | Chuc nang |
 |---|---|---|
-| POST | `/api/payments` | Thanh toán đơn |
-| GET | `/api/payments` | Lịch sử thanh toán |
-
-### Reservation
-
-| Method | URL | Chức năng |
-|---|---|---|
-| GET | `/api/reservations` | Danh sách đặt bàn |
-| POST | `/api/reservations` | Tạo đặt bàn |
-| PUT | `/api/reservations/<id>` | Cập nhật đặt bàn |
-| DELETE | `/api/reservations/<id>` | Hủy đặt bàn |
-
-### Discount
-
-| Method | URL | Chức năng |
-|---|---|---|
-| GET | `/api/discounts` | Danh sách mã giảm giá |
-| POST | `/api/discounts` | Tạo mã giảm giá |
-| PUT | `/api/discounts/<id>` | Cập nhật mã giảm giá |
-| DELETE | `/api/discounts/<id>` | Tắt mã giảm giá |
-
-### Inventory
-
-| Method | URL | Chức năng |
-|---|---|---|
-| GET | `/api/ingredients` | Danh sách nguyên liệu |
-| POST | `/api/ingredients` | Thêm nguyên liệu |
-| PUT | `/api/ingredients/<id>` | Cập nhật nguyên liệu |
-| DELETE | `/api/ingredients/<id>` | Xóa nguyên liệu |
+| POST | `/api/payments` | Thanh toan don |
+| GET | `/api/payments` | Lich su thanh toan |
 
 ### Invoice
 
-| Method | URL | Chức năng |
+| Method | URL | Chuc nang |
 |---|---|---|
-| GET | `/api/invoices/<order_id>` | Xem hóa đơn chi tiết |
-
-### Shift
-
-| Method | URL | Chức năng |
-|---|---|---|
-| GET | `/api/shifts` | Danh sách ca làm |
-| POST | `/api/shifts/check-in` | Bắt đầu ca |
-| POST | `/api/shifts/<id>/check-out` | Kết thúc ca |
-
-### Activity Log
-
-| Method | URL | Chức năng |
-|---|---|---|
-| GET | `/api/activity-logs` | Xem lịch sử hoạt động |
+| GET | `/api/invoices/<order_id>` | Hoa don chi tiet |
 
 ### Statistics
 
-| Method | URL | Chức năng |
+| Method | URL | Chuc nang |
 |---|---|---|
-| GET | `/api/statistics` | Thống kê tổng quan |
-| GET | `/api/statistics/revenue` | Doanh thu theo khoảng ngày |
-| GET | `/api/statistics/popular-items` | Món bán chạy |
-| GET | `/api/statistics/by-day` | Doanh thu theo ngày |
-| GET | `/api/statistics/by-staff` | Doanh thu theo nhân viên |
-
-## 13. Ghi Chú
-
-- Đơn vị tiền tệ: VND.
-- `payment_app` là module riêng, được Flask app chính register trong `app/__init__.py`.
-- `app/controllers/payment_controller.py` và `app/services/payment_service.py` là wrapper để giữ import cũ không bị vỡ.
-- Nếu muốn reset dữ liệu demo, chạy lại `python seed.py`.
+| GET | `/api/statistics` | Thong ke tong quan |
+| GET | `/api/statistics/revenue` | Doanh thu theo khoang ngay |
+| GET | `/api/statistics/popular-items` | Mon ban chay |
+| GET | `/api/statistics/by-day` | Doanh thu theo ngay |
+| GET | `/api/statistics/by-staff` | Doanh thu theo nhan vien |

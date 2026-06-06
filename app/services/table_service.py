@@ -18,7 +18,7 @@ class TableService(ABCWritableService):
 
     def get_by_id(self, record_id):
         self.release_expired_reservations()
-        return DiningTable.query.get_or_404(record_id)
+        return db.get_or_404(DiningTable, record_id)
 
     def create(self, data):
         table_number = data.get('table_number', '').strip()

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from app.extensions import db
 
 class Payment(db.Model):
@@ -8,7 +8,7 @@ class Payment(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), unique=True, nullable=False)
     payment_method = db.Column(db.String(30), nullable=False, default='tien_mat')
     amount = db.Column(db.Integer, nullable=False)
-    paid_at = db.Column(db.DateTime, default=datetime.utcnow)
+    paid_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC).replace(tzinfo=None))
 
     order = db.relationship('Order', back_populates='payment')
 

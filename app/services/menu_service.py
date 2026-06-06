@@ -11,7 +11,7 @@ class CategoryService(ABCWritableService):
         return Category.query.order_by(Category.name).all()
 
     def get_by_id(self, record_id):
-        return Category.query.get_or_404(record_id)
+        return db.get_or_404(Category, record_id)
 
     def create(self, data):
         ten = data.get('name', '').strip()
@@ -61,7 +61,7 @@ class MenuItemService(ABCWritableService):
         return MenuItem.query.order_by(MenuItem.name).all()
 
     def get_by_id(self, record_id):
-        return MenuItem.query.get_or_404(record_id)
+        return db.get_or_404(MenuItem, record_id)
 
     def create(self, data):
         ten = data.get('name', '').strip()
@@ -124,7 +124,7 @@ class MenuItemService(ABCWritableService):
             raise ValueError(f'Trang thai mon khong hop le. Chon mot trong: {MENU_ITEM_STATUSES}')
 
     def __kiem_tra_danh_muc(self, category_id):
-        if not Category.query.get(category_id):
+        if not db.session.get(Category, category_id):
             raise ValueError('Danh muc khong ton tai')
 
     def __str__(self):

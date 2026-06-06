@@ -1,1256 +1,341 @@
 {
   "info": {
-    "name": "Nhom 07 - Sushi Restaurant API - Role Scenarios",
-    "description": "Postman collection chia kich ban theo tung quyen nguoi dung: Public, Admin, Staff, Cashier. Chay theo thu tu folder tu tren xuong duoi sau khi da chay python seed.py va python run.py.",
+    "name": "Nhom 07 - Sushi Restaurant API - 36 Endpoints",
+    "description": "Postman collection khop voi source hien tai: 36 endpoint Flask REST API. Chay python seed.py va python run.py truoc khi test.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "base_url",
-      "value": "http://127.0.0.1:5000"
-    },
-    {
-      "key": "admin_token",
-      "value": ""
-    },
-    {
-      "key": "staff_token",
-      "value": ""
-    },
-    {
-      "key": "cashier_token",
-      "value": ""
-    },
-    {
-      "key": "created_category_id",
-      "value": ""
-    },
-    {
-      "key": "created_menu_item_id",
-      "value": ""
-    },
-    {
-      "key": "created_table_id",
-      "value": ""
-    },
-    {
-      "key": "created_customer_id",
-      "value": ""
-    },
-    {
-      "key": "created_discount_id",
-      "value": ""
-    },
-    {
-      "key": "created_discount_code",
-      "value": ""
-    },
-    {
-      "key": "created_ingredient_id",
-      "value": ""
-    },
-    {
-      "key": "created_reservation_id",
-      "value": ""
-    },
-    {
-      "key": "created_shift_id",
-      "value": ""
-    },
-    {
-      "key": "order_id",
-      "value": ""
-    },
-    {
-      "key": "payment_id",
-      "value": ""
-    }
+    {"key": "base_url", "value": "http://127.0.0.1:5000"},
+    {"key": "admin_token", "value": ""},
+    {"key": "staff_token", "value": ""},
+    {"key": "cashier_token", "value": ""},
+    {"key": "category_id", "value": "1"},
+    {"key": "menu_item_id", "value": "1"},
+    {"key": "table_id", "value": "1"},
+    {"key": "customer_id", "value": "1"},
+    {"key": "order_id", "value": "1"},
+    {"key": "user_id", "value": "1"}
   ],
   "item": [
     {
-      "name": "00 - Public",
+      "name": "00 - Public And Auth",
       "item": [
         {
-          "name": "Health check",
+          "name": "Health",
           "request": {
             "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/health",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "health"
-              ]
-            }
-          },
+            "url": "{{base_url}}/api/health"
+          }
+        },
+        {
+          "name": "Register Staff",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Demo Staff\",\n  \"username\": \"demo_staff\",\n  \"password\": \"demo123\"\n}"
+            },
+            "url": "{{base_url}}/api/auth/register"
+          }
+        },
+        {
+          "name": "Login Admin",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Health check OK', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});"
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('admin_token', json.token);"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Public - List menu items",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/menu-items",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "menu-items"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Public - Menu item detail 1",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/menu-items/1",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "menu-items",
-                "1"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "01 - Admin Scenario",
-      "item": [
-        {
-          "name": "Admin login - save admin_token",
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
             },
-            "url": {
-              "raw": "{{base_url}}/api/auth/login",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Admin login OK', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "const data = pm.response.json();",
-                  "pm.collectionVariables.set('admin_token', data.token);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Admin - List users",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/users",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "users"
-              ]
-            }
+            "url": "{{base_url}}/api/auth/login"
           }
         },
         {
-          "name": "Admin - Create category",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Postman Category {{$timestamp}}\",\n  \"description\": \"Category created by admin scenario\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/categories",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "categories"
-              ]
-            }
-          },
+          "name": "Login Staff",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Create category OK', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "pm.collectionVariables.set('created_category_id', pm.response.json().category.id);"
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('staff_token', json.token);"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Admin - Update category",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"description\": \"Updated by admin scenario\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/categories/{{created_category_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "categories",
-                "{{created_category_id}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Admin - Create menu item",
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Postman Roll {{$timestamp}}\",\n  \"description\": \"Created by admin scenario\",\n  \"price\": 99000,\n  \"category_id\": 1\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/menu-items",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "menu-items"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Create menu item OK', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "pm.collectionVariables.set('created_menu_item_id', pm.response.json().menu_item.id);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Admin - Update menu item",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"price\": 109000,\n  \"is_available\": true\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/menu-items/{{created_menu_item_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "menu-items",
-                "{{created_menu_item_id}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Admin - Create table",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"table_number\": \"PM{{$timestamp}}\",\n  \"seats\": 4,\n  \"status\": \"trong\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/tables",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "tables"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Create table OK', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "pm.collectionVariables.set('created_table_id', pm.response.json().table.id);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Admin - Create discount",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"code\": \"PM{{$timestamp}}\",\n  \"discount_type\": \"percent\",\n  \"value\": 10,\n  \"usage_limit\": 5\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/discounts",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "discounts"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Create discount OK', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "const discount = pm.response.json().discount;",
-                  "pm.collectionVariables.set('created_discount_id', discount.id);",
-                  "pm.collectionVariables.set('created_discount_code', discount.code);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Admin - Create ingredient",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Postman Salmon {{$timestamp}}\",\n  \"unit\": \"gram\",\n  \"stock_quantity\": 1000,\n  \"min_quantity\": 100\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/ingredients",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "ingredients"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Create ingredient OK', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "pm.collectionVariables.set('created_ingredient_id', pm.response.json().ingredient.id);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Admin - Set recipe for menu item 1",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"ingredients\": [\n    {\n      \"ingredient_id\": {{created_ingredient_id}},\n      \"quantity\": 10\n    }\n  ]\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/menu-items/1/ingredients",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "menu-items",
-                "1",
-                "ingredients"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Admin - Statistics overview",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/statistics",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "statistics"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "02 - Staff Scenario",
-      "item": [
-        {
-          "name": "Staff login - save staff_token",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"username\": \"staff\",\n  \"password\": \"staff123\"\n}"
             },
-            "url": {
-              "raw": "{{base_url}}/api/auth/login",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Staff login OK', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "pm.collectionVariables.set('staff_token', pm.response.json().token);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Staff - List tables",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{staff_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/tables",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "tables"
-              ]
-            }
+            "url": "{{base_url}}/api/auth/login"
           }
         },
         {
-          "name": "Staff - Create customer",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{staff_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"full_name\": \"Postman Customer {{$timestamp}}\",\n  \"phone\": \"09{{$timestamp}}\",\n  \"note\": \"Created by staff scenario\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/customers",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "customers"
-              ]
-            }
-          },
+          "name": "Login Cashier",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Create customer OK', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "pm.collectionVariables.set('created_customer_id', pm.response.json().customer.id);"
+                  "const json = pm.response.json();",
+                  "if (json.token) pm.collectionVariables.set('cashier_token', json.token);"
                 ]
               }
             }
-          ]
-        },
-        {
-          "name": "Staff - Create reservation",
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{staff_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"table_id\": 2,\n  \"customer_id\": {{created_customer_id}},\n  \"reservation_time\": \"2030-01-01T18:00:00\",\n  \"guest_count\": 2,\n  \"note\": \"Staff reservation scenario\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/reservations",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "reservations"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Create reservation OK', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "pm.collectionVariables.set('created_reservation_id', pm.response.json().reservation.id);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Staff - Check in shift",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{staff_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"user_id\": 2,\n  \"note\": \"Staff shift from Postman\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/shifts/check-in",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "shifts",
-                "check-in"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Check in OK or already active', function () {",
-                  "  pm.expect([201, 400]).to.include(pm.response.code);",
-                  "});",
-                  "if (pm.response.code === 201) {",
-                  "  pm.collectionVariables.set('created_shift_id', pm.response.json().shift.id);",
-                  "}"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Staff - Create order",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{staff_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"table_id\": 1,\n  \"customer_id\": {{created_customer_id}},\n  \"discount_code\": \"{{created_discount_code}}\",\n  \"items\": [\n    {\n      \"menu_item_id\": 1,\n      \"quantity\": 2\n    }\n  ]\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/orders",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "orders"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Create order OK', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "pm.collectionVariables.set('order_id', pm.response.json().order.id);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Staff - Order detail",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{staff_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/orders/{{order_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "orders",
-                "{{order_id}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Staff - Update order status to served",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{staff_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"da_phuc_vu\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/orders/{{order_id}}/status",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "orders",
-                "{{order_id}}",
-                "status"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Staff - Try list users (expect 403)",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{staff_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/users",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "users"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Staff cannot list users', function () {",
-                  "  pm.response.to.have.status(403);",
-                  "});"
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "03 - Cashier Scenario",
-      "item": [
-        {
-          "name": "Cashier login - save cashier_token",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{"key": "Content-Type", "value": "application/json"}],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"username\": \"cashier\",\n  \"password\": \"cashier123\"\n}"
             },
-            "url": {
-              "raw": "{{base_url}}/api/auth/login",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Cashier login OK', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "pm.collectionVariables.set('cashier_token', pm.response.json().token);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Cashier - Pay order",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{cashier_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"order_id\": {{order_id}},\n  \"payment_method\": \"tien_mat\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/payments",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "payments"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Pay order OK', function () {",
-                  "  pm.response.to.have.status(201);",
-                  "});",
-                  "pm.collectionVariables.set('payment_id', pm.response.json().payment.id);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Cashier - List payments",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{cashier_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/payments",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "payments"
-              ]
-            }
+            "url": "{{base_url}}/api/auth/login"
           }
-        },
-        {
-          "name": "Cashier - Get invoice",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{cashier_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/invoices/{{order_id}}",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "invoices",
-                "{{order_id}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Cashier - Try create menu item (expect 403)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{cashier_token}}"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Cashier Cannot Create\",\n  \"price\": 10000,\n  \"category_id\": 1\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/menu-items",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "menu-items"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Cashier cannot create menu item', function () {",
-                  "  pm.response.to.have.status(403);",
-                  "});"
-                ]
-              }
-            }
-          ]
         }
       ]
     },
     {
-      "name": "04 - Admin Reports And Cleanup",
+      "name": "01 - Admin",
       "item": [
         {
-          "name": "Admin - Revenue",
+          "name": "Get Users",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/statistics/revenue",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "statistics",
-                "revenue"
-              ]
-            }
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "url": "{{base_url}}/api/users"
           }
         },
         {
-          "name": "Admin - Popular items",
+          "name": "Update User Role",
           "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/statistics/popular-items?top=5",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "statistics",
-                "popular-items"
-              ],
-              "query": [
-                {
-                  "key": "top",
-                  "value": "5"
-                }
-              ]
-            }
+            "method": "PUT",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"role\": \"staff\"\n}"},
+            "url": "{{base_url}}/api/users/{{user_id}}/role"
           }
         },
         {
-          "name": "Admin - Revenue by day",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/statistics/by-day",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "statistics",
-                "by-day"
-              ]
+          "name": "Create Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {"type": "text/javascript", "exec": ["const json = pm.response.json();", "if (json.category) pm.collectionVariables.set('category_id', json.category.id);"]}
             }
-          }
-        },
-        {
-          "name": "Admin - Revenue by staff",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/statistics/by-staff",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "statistics",
-                "by-staff"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Admin - Activity logs",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/activity-logs",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "activity-logs"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Admin - Logout",
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{admin_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/auth/logout",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "logout"
-              ]
-            }
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Demo Category\",\n  \"description\": \"Created from Postman\"\n}"},
+            "url": "{{base_url}}/api/categories"
           }
         },
         {
-          "name": "Staff - Logout",
+          "name": "Update Category",
           "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{staff_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/auth/logout",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "logout"
-              ]
-            }
+            "method": "PUT",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"description\": \"Updated from Postman\"\n}"},
+            "url": "{{base_url}}/api/categories/{{category_id}}"
           }
         },
         {
-          "name": "Cashier - Logout",
+          "name": "Create Menu Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {"type": "text/javascript", "exec": ["const json = pm.response.json();", "if (json.menu_item) pm.collectionVariables.set('menu_item_id', json.menu_item.id);"]}
+            }
+          ],
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{cashier_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/auth/logout",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "logout"
-              ]
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"Demo Nigiri\",\n  \"description\": \"Created from Postman\",\n  \"price\": 42000,\n  \"category_id\": {{category_id}}\n}"},
+            "url": "{{base_url}}/api/menu-items"
+          }
+        },
+        {
+          "name": "Update Menu Item",
+          "request": {
+            "method": "PUT",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"price\": 50000,\n  \"status\": \"con_mon\",\n  \"is_available\": true\n}"},
+            "url": "{{base_url}}/api/menu-items/{{menu_item_id}}"
+          }
+        },
+        {
+          "name": "Create Table",
+          "event": [
+            {
+              "listen": "test",
+              "script": {"type": "text/javascript", "exec": ["const json = pm.response.json();", "if (json.table) pm.collectionVariables.set('table_id', json.table.id);"]}
             }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"table_number\": \"P20\",\n  \"seats\": 4,\n  \"status\": \"trong\"\n}"},
+            "url": "{{base_url}}/api/tables"
+          }
+        },
+        {
+          "name": "Delete Menu Item",
+          "request": {
+            "method": "DELETE",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "url": "{{base_url}}/api/menu-items/{{menu_item_id}}"
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "url": "{{base_url}}/api/categories/{{category_id}}"
           }
         }
+      ]
+    },
+    {
+      "name": "02 - Catalog And People",
+      "item": [
+        {"name": "Get Categories", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]}, "url": "{{base_url}}/api/categories"}},
+        {"name": "Get Category Detail", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]}, "url": "{{base_url}}/api/categories/{{category_id}}"}},
+        {"name": "Get Menu Items", "request": {"method": "GET", "url": "{{base_url}}/api/menu-items"}},
+        {"name": "Get Menu Item Detail", "request": {"method": "GET", "url": "{{base_url}}/api/menu-items/{{menu_item_id}}"}},
+        {"name": "Get Tables", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]}, "url": "{{base_url}}/api/tables"}},
+        {
+          "name": "Update Table",
+          "request": {
+            "method": "PUT",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"trong\"\n}"},
+            "url": "{{base_url}}/api/tables/{{table_id}}"
+          }
+        },
+        {"name": "Get Customers", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]}, "url": "{{base_url}}/api/customers"}},
+        {
+          "name": "Create Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {"type": "text/javascript", "exec": ["const json = pm.response.json();", "if (json.customer) pm.collectionVariables.set('customer_id', json.customer.id);"]}
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"full_name\": \"Demo Customer\",\n  \"phone\": \"0900000020\",\n  \"note\": \"Created from Postman\"\n}"},
+            "url": "{{base_url}}/api/customers"
+          }
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "method": "PUT",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"note\": \"Updated from Postman\"\n}"},
+            "url": "{{base_url}}/api/customers/{{customer_id}}"
+          }
+        },
+        {
+          "name": "Delete Customer",
+          "request": {
+            "method": "DELETE",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "url": "{{base_url}}/api/customers/{{customer_id}}"
+          }
+        },
+        {
+          "name": "Delete Table",
+          "request": {
+            "method": "DELETE",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]},
+            "url": "{{base_url}}/api/tables/{{table_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Order Payment Invoice",
+      "item": [
+        {"name": "Get Orders", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]}, "url": "{{base_url}}/api/orders"}},
+        {
+          "name": "Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {"type": "text/javascript", "exec": ["const json = pm.response.json();", "if (json.order) pm.collectionVariables.set('order_id', json.order.id);"]}
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"table_id\": 1,\n  \"customer_id\": 1,\n  \"items\": [\n    {\"menu_item_id\": 1, \"quantity\": 2}\n  ]\n}"},
+            "url": "{{base_url}}/api/orders"
+          }
+        },
+        {"name": "Get Order Detail", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]}, "url": "{{base_url}}/api/orders/{{order_id}}"}},
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{staff_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"status\": \"da_phuc_vu\"\n}"},
+            "url": "{{base_url}}/api/orders/{{order_id}}/status"
+          }
+        },
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{cashier_token}}", "type": "string"}]},
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"order_id\": {{order_id}},\n  \"payment_method\": \"tien_mat\"\n}"},
+            "url": "{{base_url}}/api/payments"
+          }
+        },
+        {"name": "Get Payments", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{cashier_token}}", "type": "string"}]}, "url": "{{base_url}}/api/payments"}},
+        {"name": "Get Invoice", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{cashier_token}}", "type": "string"}]}, "url": "{{base_url}}/api/invoices/{{order_id}}"}}
+      ]
+    },
+    {
+      "name": "04 - Statistics",
+      "item": [
+        {"name": "Overview", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]}, "url": "{{base_url}}/api/statistics"}},
+        {"name": "Revenue", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]}, "url": "{{base_url}}/api/statistics/revenue"}},
+        {"name": "Popular Items", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]}, "url": "{{base_url}}/api/statistics/popular-items?top=5"}},
+        {"name": "Revenue By Day", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]}, "url": "{{base_url}}/api/statistics/by-day"}},
+        {"name": "Revenue By Staff", "request": {"method": "GET", "auth": {"type": "bearer", "bearer": [{"key": "token", "value": "{{admin_token}}", "type": "string"}]}, "url": "{{base_url}}/api/statistics/by-staff"}}
       ]
     }
   ]

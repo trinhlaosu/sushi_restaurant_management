@@ -10,7 +10,7 @@ class UserService(ABCBaseService):
         return User.query.order_by(User.id).all()
 
     def get_by_id(self, record_id):
-        return User.query.get_or_404(record_id)
+        return db.get_or_404(User, record_id)
 
     def update_role(self, user_id, role_name):
         role = Role.query.filter_by(name=role_name).first()

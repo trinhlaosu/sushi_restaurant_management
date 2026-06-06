@@ -14,10 +14,10 @@ class PaymentService(ABCBaseService):
         return Payment.query.order_by(Payment.id.desc()).all()
 
     def get_by_id(self, record_id):
-        return Payment.query.get_or_404(record_id)
+        return db.get_or_404(Payment, record_id)
 
     def thanh_toan(self, order_id, phuong_thuc='tien_mat'):
-        don = Order.query.get_or_404(order_id)
+        don = db.get_or_404(Order, order_id)
 
         self.__kiem_tra_chua_thanh_toan(don)
 

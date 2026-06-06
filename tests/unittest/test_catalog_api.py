@@ -78,36 +78,3 @@ class CategoryMenuApiTest(ApiTestBase):
 
         self.assertEqual(response.status_code, 200)
         self.assertFalse(detail.get_json()['is_available'])
-
-    def test_get_menu_item_ingredients(self):
-        ingredient = self._create_ingredient()
-        self._set_recipe(ingredient['id'])
-
-        response = self.client.get('/api/menu-items/1/ingredients', headers=self.staff_headers())
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json()[0]['ingredient_id'], ingredient['id'])
-
-    def test_post_menu_item_ingredients(self):
-        ingredient = self._create_ingredient()
-
-        response = self._set_recipe(ingredient['id'])
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get_json()['recipe'][0]['quantity'], 10)
-
-    def _create_ingredient(self):
-        response = self.client.post('/api/ingredients', headers=self.login(), json={
-            'name': 'Salmon',
-            'unit': 'gram',
-            'stock_quantity': 100,
-        })
-        self.assertEqual(response.status_code, 201)
-        return response.get_json()['ingredient']
-
-    def _set_recipe(self, ingredient_id):
-        return self.client.post('/api/menu-items/1/ingredients', headers=self.login(), json={
-            'ingredients': [
-                {'ingredient_id': ingredient_id, 'quantity': 10},
-            ],
-        })

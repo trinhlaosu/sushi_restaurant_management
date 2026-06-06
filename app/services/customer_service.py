@@ -13,7 +13,7 @@ class CustomerService(ABCWritableService):
         return Customer.query.order_by(Customer.id).all()
 
     def get_by_id(self, record_id):
-        return Customer.query.get_or_404(record_id)
+        return db.get_or_404(Customer, record_id)
 
     def create(self, data):
         full_name = data.get('full_name', '').strip()

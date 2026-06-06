@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.extensions import db
 
@@ -11,7 +11,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC).replace(tzinfo=None))
 
     role = db.relationship('Role', back_populates='users')
     tokens = db.relationship('AccessToken', back_populates='user', cascade='all, delete-orphan')

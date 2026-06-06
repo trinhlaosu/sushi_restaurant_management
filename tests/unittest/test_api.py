@@ -24,6 +24,7 @@ class SushiApiTestCase(unittest.TestCase):
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+        db.engine.dispose()
         self.ctx.pop()
 
     def _seed_data(self):
@@ -152,25 +153,6 @@ class SushiApiTestCase(unittest.TestCase):
         self.assertEqual(payment_response.get_json()['payment']['amount'], 90000)
         self.assertEqual(order_detail_response.get_json()['status'], 'da_thanh_toan')
 
-    def test_birthday_member_gets_10_percent_discount_only(self):
-        headers = self._login('staff', 'staff123')
-
-        response = self.client.post('/api/orders', headers=headers, json={
-            'table_id': 1,
-            'customer_id': 2,
-            'items': [
-                {'menu_item_id': 1, 'quantity': 2},
-            ],
-        })
-
-        self.assertEqual(response.status_code, 201)
-        order = response.get_json()['order']
-        self.assertEqual(order['total_amount'], 90000)
-        self.assertEqual(order['discount_percent'], 10)
-        self.assertEqual(order['discount_amount'], 9000)
-        self.assertEqual(order['final_amount'], 81000)
-        self.assertIsNone(order['gift_item'])
-
     def test_reserve_table_sets_15_minute_hold(self):
         headers = self._login('staff', 'staff123')
 
@@ -186,7 +168,7 @@ class SushiApiTestCase(unittest.TestCase):
 
     def test_expired_reservation_returns_table_to_available(self):
         headers = self._login('staff', 'staff123')
-        table = DiningTable.query.get(1)
+        table = db.session.get(DiningTable, 1)
         table.status = 'da_dat'
         table.reserved_at = now_utc() - timedelta(minutes=20)
         table.reserved_until = now_utc() - timedelta(minutes=5)

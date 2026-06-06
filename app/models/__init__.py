@@ -8,9 +8,3 @@ from app.models.customer import Customer
 from app.models.order import Order
 from app.models.order_detail import OrderDetail
 from app.models.payment import Payment
-from app.models.discount import Discount
-from app.models.ingredient import Ingredient
-from app.models.menu_item_ingredient import MenuItemIngredient
-from app.models.reservation import Reservation
-from app.models.activity_log import ActivityLog
-from app.models.shift import Shift

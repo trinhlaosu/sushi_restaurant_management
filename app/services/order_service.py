@@ -1,10 +1,7 @@
 from app.extensions import db
-from app.models import Customer, DiningTable, MenuItem, Order, OrderDetail
-from app.models.customer import BIRTHDAY_MEMBER_DISCOUNT, MEMBER_GIFTS, MEMBER_TIER_DISCOUNTS
+from app.models import DiningTable, MenuItem, Order, OrderDetail
 from app.models.dining_table import now_utc
 from app.services.base_service import ABCWritableService
-from app.services.discount_service import DiscountService
-from app.services.inventory_service import RecipeService
 
 
 TRANG_THAI_HOP_LE = ['dang_xu_ly', 'da_phuc_vu', 'da_thanh_toan', 'da_huy']
@@ -14,8 +11,7 @@ class OrderService(ABCWritableService):
     """Xu ly don goi mon."""
 
     def __init__(self):
-        self._discount_service = DiscountService()
-        self._recipe_service = RecipeService()
+        pass
 
     def get_all(self):
         self.__giai_phong_ban_dat_qua_han()
@@ -23,7 +19,7 @@ class OrderService(ABCWritableService):
 
     def get_by_id(self, record_id):
         self.__giai_phong_ban_dat_qua_han()
-        return Order.query.get_or_404(record_id)
+        return db.get_or_404(Order, record_id)
 
     def create(self, data):
         try:
@@ -31,13 +27,12 @@ class OrderService(ABCWritableService):
             customer_id = data.get('customer_id')
             user_id = data.get('user_id')
             items = data.get('items', [])
-            discount_code = data.get('discount_code')
 
             if not items:
                 raise ValueError('Don hang phai co it nhat mot mon')
 
             self.__giai_phong_ban_dat_qua_han()
-            ban = DiningTable.query.get(table_id)
+            ban = db.session.get(DiningTable, table_id)
             if not ban:
                 raise ValueError('Ban khong ton tai')
             if ban.status == 'dang_phuc_vu':
@@ -53,15 +48,9 @@ class OrderService(ABCWritableService):
             db.session.flush()
 
             tong_tien = self.__them_chi_tiet_don(don.id, items)
-            khuyen_mai = self.__tinh_khuyen_mai(customer_id, tong_tien, discount_code)
 
             don.total_amount = tong_tien
-            don.discount_id = khuyen_mai['discount_id']
-            don.discount_percent = khuyen_mai['discount_percent']
-            don.discount_amount = khuyen_mai['discount_amount']
-            don.final_amount = khuyen_mai['final_amount']
-            don.promotion_note = khuyen_mai['promotion_note']
-            don.gift_item = khuyen_mai['gift_item']
+            don.final_amount = tong_tien
             ban.status = 'dang_phuc_vu'
             ban.reserved_at = None
             ban.reserved_until = None
@@ -85,8 +74,6 @@ class OrderService(ABCWritableService):
 
         if trang_thai == 'da_huy' and don.payment:
             raise ValueError('Khong the huy don hang da thanh toan')
-        if trang_thai == 'da_huy' and don.status != 'da_huy':
-            self.__hoan_kho_va_voucher(don)
 
         don.status = trang_thai
 
@@ -115,13 +102,11 @@ class OrderService(ABCWritableService):
             if so_luong <= 0:
                 raise ValueError('So luong mon phai lon hon 0')
 
-            mon = MenuItem.query.get(mon_id)
+            mon = db.session.get(MenuItem, mon_id)
             if not mon or not mon.is_available or mon.status != 'con_mon':
                 raise ValueError(
                     f'Mon co id {mon_id} khong ton tai hoac hien khong ban duoc'
                 )
-
-            self._recipe_service.ensure_stock_and_deduct(mon, so_luong)
 
             thanh_tien = mon.price * so_luong
             tong_tien += thanh_tien
@@ -137,51 +122,6 @@ class OrderService(ABCWritableService):
 
         return tong_tien
 
-    def __tinh_khuyen_mai(self, customer_id, tong_tien, discount_code=None):
-        if discount_code:
-            discount = self._discount_service.get_active_by_code(discount_code)
-            discount_amount = self._discount_service.calculate_amount(discount, tong_tien)
-            self._discount_service.mark_used(discount)
-            return {
-                'discount_id': discount.id,
-                'discount_percent': int(discount.value) if discount.discount_type == 'percent' else 0,
-                'discount_amount': discount_amount,
-                'final_amount': tong_tien - discount_amount,
-                'promotion_note': f'Ma giam gia {discount.code}',
-                'gift_item': None,
-            }
-
-        customer = Customer.query.get(customer_id) if customer_id else None
-        if not customer or customer.customer_type != 'thanh_vien':
-            return self.__ket_qua_khuyen_mai(tong_tien, 0, None, None)
-
-        if self.__la_thang_sinh_nhat(customer):
-            return self.__ket_qua_khuyen_mai(
-                tong_tien,
-                BIRTHDAY_MEMBER_DISCOUNT,
-                'Uu dai sinh nhat thanh vien 10%, khong ap dung dong thoi giam gia khac',
-                None
-            )
-
-        discount_percent = MEMBER_TIER_DISCOUNTS.get(customer.member_tier, 0)
-        gift_item = MEMBER_GIFTS.get(customer.member_tier)
-        promotion_note = f'Uu dai thanh vien hang {customer.member_tier}'
-        return self.__ket_qua_khuyen_mai(tong_tien, discount_percent, promotion_note, gift_item)
-
-    def __ket_qua_khuyen_mai(self, tong_tien, discount_percent, promotion_note, gift_item):
-        discount_amount = int(tong_tien * discount_percent / 100)
-        return {
-            'discount_id': None,
-            'discount_percent': discount_percent,
-            'discount_amount': discount_amount,
-            'final_amount': tong_tien - discount_amount,
-            'promotion_note': promotion_note,
-            'gift_item': gift_item,
-        }
-
-    def __la_thang_sinh_nhat(self, customer):
-        return customer.birth_date is not None and customer.birth_date.month == now_utc().month
-
     def __giai_phong_ban_dat_qua_han(self):
         ban_qua_han = DiningTable.query.filter(
             DiningTable.status == 'da_dat',
@@ -194,16 +134,6 @@ class OrderService(ABCWritableService):
             ban.reserved_until = None
         if ban_qua_han:
             db.session.commit()
-
-    def __hoan_kho_va_voucher(self, don):
-        for detail in don.details:
-            if not detail.menu_item:
-                continue
-            for recipe_item in detail.menu_item.ingredients:
-                recipe_item.ingredient.stock_quantity += recipe_item.quantity * detail.quantity
-
-        if don.discount and don.discount.used_count > 0:
-            don.discount.used_count -= 1
 
     def __str__(self):
         return 'OrderService()'

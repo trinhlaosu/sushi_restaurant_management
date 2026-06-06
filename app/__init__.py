@@ -18,12 +18,7 @@ def create_app():
     from payment_app.controllers.payment_controller import payment_bp
     from app.controllers.user_controller import user_bp
     from app.controllers.statistic_controller import statistic_bp
-    from app.controllers.discount_controller import discount_bp
-    from app.controllers.inventory_controller import ingredient_bp, recipe_bp
-    from app.controllers.reservation_controller import reservation_bp
     from app.controllers.invoice_controller import invoice_bp
-    from app.controllers.activity_log_controller import activity_log_bp
-    from app.controllers.shift_controller import shift_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(category_bp)
@@ -34,13 +29,7 @@ def create_app():
     app.register_blueprint(payment_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(statistic_bp)
-    app.register_blueprint(discount_bp)
-    app.register_blueprint(ingredient_bp)
-    app.register_blueprint(recipe_bp)
-    app.register_blueprint(reservation_bp)
     app.register_blueprint(invoice_bp)
-    app.register_blueprint(activity_log_bp)
-    app.register_blueprint(shift_bp)
 
     @app.get('/api/health')
     def health():

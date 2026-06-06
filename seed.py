@@ -12,14 +12,17 @@ with app.app_context():
 
     admin_role = Role(name='admin', description='Quản trị viên hệ thống')
     staff_role = Role(name='staff', description='Nhân viên nhà hàng')
-    db.session.add_all([admin_role, staff_role])
+    cashier_role = Role(name='cashier', description='Nhan vien thu ngan')
+    db.session.add_all([admin_role, staff_role, cashier_role])
     db.session.flush()
 
     admin = User(full_name='Quản trị viên', username='admin', role_id=admin_role.id)
     admin.set_password('admin123')
     staff = User(full_name='Nhân viên bán hàng', username='staff', role_id=staff_role.id)
     staff.set_password('staff123')
-    db.session.add_all([admin, staff])
+    cashier = User(full_name='Nhan vien thu ngan', username='cashier', role_id=cashier_role.id)
+    cashier.set_password('cashier123')
+    db.session.add_all([admin, staff, cashier])
 
     category_names = [
         ('Sushi', 'Các món sushi/nigiri'),
@@ -106,6 +109,7 @@ with app.app_context():
     ])
 
     db.session.commit()
+    print('Tai khoan thu ngan: cashier / cashier123')
     print('Đã tạo CSDL mẫu thành công.')
     print('Tài khoản admin: admin / admin123')
     print('Tài khoản nhân viên: staff / staff123')
